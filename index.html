@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050608">
 <meta name="description" content="Hologram Gemini Live, một HTML, Canvas 2D nhẹ, điều khiển video bằng giọng nói.">
-<title>Hologram AI · Aero 1280×720</title>
+<title>Hologram AI · Aero Liquid Motion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#050608;--card:#14171b;--line:#414044;--gold:#e1c28a;--goldsoft:#fff0cc;--white:#f9f8f3;--muted:#a8aab0;--blue:#7aafff;--green:#58cca0;--red:#ff7487;--shadow:0 12px 38px rgba(0,0,0,.4)}
@@ -87,13 +87,53 @@ html.low-motion #speech{transition-duration:.45s}
 #speech-body{transition:font-size .45s var(--ease)}
 /* Keep controls clickable while faded (one-tap emergency Stop). The toolbar uses gradient glass without continuous backdrop blur. */
 #toolbar .iconbtn{backdrop-filter:none;-webkit-backdrop-filter:none}
+/* LIQUID MOTION v2 — transitions are reversible; no enter-only CSS animation on speech children. */
+:root{--ease:cubic-bezier(.22,.76,.2,1);--ease-soft:cubic-bezier(.16,.84,.22,1)}
+#app{background:radial-gradient(610px 480px at 48% 52%,rgba(17,72,83,.24),transparent 80%),radial-gradient(550px 310px at 92% 15%,rgba(33,68,96,.13),transparent 90%),linear-gradient(140deg,#020908,#02090e 64%,#010304)}
+#app::before{opacity:.9;animation:ambientDrift 28s ease-in-out infinite alternate;will-change:transform}
+@keyframes ambientDrift{0%{transform:translate3d(-14px,4px,0) scale(1)}50%{transform:translate3d(20px,-9px,0) scale(1.05)}100%{transform:translate3d(-7px,17px,0) scale(.99)}}
+#frame{background:linear-gradient(120deg,rgba(164,239,245,.016),transparent 35%,rgba(255,245,195,.012));border-color:rgba(246,231,189,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.024),0 0 48px rgba(8,38,41,.08)}
+#frame::before,#frame::after{opacity:.72}
+#scene-inner{isolation:isolate}
+#orb-wrap{transition:transform 1.15s var(--ease-soft),opacity 1.02s var(--ease);backface-visibility:hidden}
+#orb-wrap.off{opacity:0;transform:translate3d(0,-28px,-175px) scale(.54)}
+#speech{gap:20px;opacity:0;transform:translate3d(0,34px,90px) scale(.965);filter:blur(11px);transition:opacity .95s var(--ease),transform 1.12s var(--ease-soft),filter .96s var(--ease);backface-visibility:hidden}
+#speech.on{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+#speech .anim{opacity:0;transform:translate3d(0,30px,0) scale(.984);filter:blur(8px);animation:none;transition:opacity .78s var(--ease),transform .94s var(--ease-soft),filter .78s var(--ease);transition-delay:0s}
+#speech.on .anim{animation:none;opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0);transition-delay:calc(var(--d,0)*.12s + .12s)}
+@keyframes rise{from{opacity:0;transform:translate3d(0,24px,0);filter:blur(8px)}to{opacity:1;transform:translate3d(0,0,0);filter:blur(0)}}
+#topbar .brand.anim{animation:rise .95s var(--ease-soft) both;animation-delay:calc(var(--d,0)*.14s + .2s)}
+#speech-heading{transition:font-size .8s var(--ease-soft),letter-spacing .8s var(--ease),opacity .7s var(--ease)}
+#speech.title-only #speech-heading{font-size:96px!important;text-shadow:0 0 42px rgba(192,233,228,.20),0 8px 28px rgba(0,0,0,.34)}
+#orb{transition:transform .7s var(--ease-soft)}
+#speech-body{max-width:1010px;line-height:1.22!important;text-wrap:wrap;transition:font-size .75s var(--ease-soft),line-height .75s var(--ease)}
+#speech-body.typing::after{box-shadow:0 0 14px rgba(117,242,222,.45)}
+#thinking-caption{transition:opacity .72s var(--ease),transform .88s var(--ease-soft),filter .82s var(--ease);filter:blur(7px);transform:translate3d(0,18px,0)}
+#thinking-caption.on{filter:none;transform:translate3d(0,0,0)}
+/* Lightweight glass highlights: small controls only, not a full-screen blur layer. */
+#toolbar .iconbtn{background:linear-gradient(158deg,rgba(97,153,170,.23) 0%,rgba(32,66,78,.55) 33%,rgba(7,19,27,.83) 85%);border-color:rgba(211,232,221,.25);box-shadow:inset 0 1px 1px rgba(241,254,250,.25),inset 0 -7px 15px rgba(0,6,16,.34),0 5px 20px rgba(0,0,0,.23),0 0 0 1px rgba(17,58,63,.12);transition:background .4s var(--ease),border-color .4s var(--ease),transform .27s var(--ease-soft),box-shadow .4s var(--ease);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+#toolbar .iconbtn::before{content:"";position:absolute;inset:3px 4px 54% 4px;border-radius:50% 50% 40% 40%;background:linear-gradient(180deg,rgba(245,255,254,.16),transparent);pointer-events:none}
+#toolbar .iconbtn svg{position:relative;z-index:1}
+#toolbar .iconbtn:hover:not(:disabled){transform:translate3d(-3px,-2px,0) scale(1.065);border-color:rgba(246,231,189,.72);background:linear-gradient(160deg,rgba(73,152,171,.46),rgba(16,34,47,.77));box-shadow:inset 0 1px 1px rgba(255,255,255,.30),0 9px 28px rgba(0,0,0,.3),0 0 26px rgba(92,195,190,.19)}
+#toolbar .iconbtn:active:not(:disabled){transform:scale(.95)}
+#toolbar .iconbtn .tip{transition:opacity .35s var(--ease),transform .4s var(--ease-soft);transform:translate3d(8px,-50%,0);border-radius:11px}
+#toolbar .iconbtn:hover .tip,#toolbar .iconbtn:focus-visible .tip{transform:translate3d(0,-50%,0)}
+#settings{background:linear-gradient(130deg,rgba(18,47,54,.92),rgba(8,18,27,.96) 60%);box-shadow:-30px 0 80px rgba(0,0,0,.39),inset 1px 0 rgba(238,255,255,.1)}
+#settings .field input,#settings .field textarea,#settings .field select{border-radius:13px;background:linear-gradient(145deg,rgba(51,89,104,.19),rgba(3,11,20,.68));box-shadow:inset 0 1px rgba(250,255,255,.08);transition:border-color .3s var(--ease),box-shadow .3s var(--ease)}
+#settings .field input:focus,#settings .field textarea:focus,#settings .field select:focus{border-color:rgba(246,231,189,.75);box-shadow:0 0 0 3px rgba(217,184,115,.12)}
+#overlay{transition:opacity .55s var(--ease)}
+#toast{transition:opacity .5s var(--ease),transform .65s var(--ease-soft);border-radius:16px}
+#quick-text{border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.12)}
+html.low-motion #app::before{animation:none}
+html.low-motion #toolbar .iconbtn{backdrop-filter:none;-webkit-backdrop-filter:none}
+@media(prefers-reduced-motion:reduce){#app::before,#topbar .brand.anim{animation:none!important}#speech,#speech .anim,#orb-wrap,#thinking-caption{transition-duration:.2s!important;transition-delay:0s!important}}
 </style>
 </head>
 <body>
 <main id="app">
 <div id="frame" aria-hidden="true"></div>
 <div id="progress" aria-hidden="true"></div>
-<header id="topbar"><span class="brand">VOICE AI · HOLOGRAM</span><span id="state-display" class="state" data-status="idle" role="status" aria-live="polite"><span class="dot"></span><span id="state-label">Chờ kết nối</span></span></header>
+<header id="topbar"><span class="brand anim" style="--d:0">VOICE AI · HOLOGRAM</span><span id="state-display" class="state" data-status="idle" role="status" aria-live="polite"><span class="dot"></span><span id="state-label">Chờ kết nối</span></span></header>
 <section id="scene" aria-label="Màn hình trình chiếu Hologram"><div id="scene-inner"><div id="orb-wrap"><canvas id="orb" aria-label="Quả cầu phản ứng theo âm thanh" role="img"></canvas></div><div id="thinking-caption" aria-live="polite"></div><div id="speech" aria-live="polite"><h1 id="speech-heading" class="anim" style="--d:0">Hologram AI</h1><div id="speech-body" class="anim" style="--d:1"></div></div></div></section>
 <section id="video-layer" aria-label="Trình phát video YouTube" aria-hidden="true"><div id="yt-host"><div id="yt-player"></div></div><div id="video-top"><span id="video-title"></span></div><div id="video-actions"><button id="video-pause" type="button">Tạm dừng</button><button id="video-resume" type="button">Tiếp tục</button><button id="video-fullscreen" type="button">Toàn màn hình</button><button id="video-close" type="button">Đóng video</button></div><div id="video-status" role="status">Đang tải video…</div></section>
 <nav id="toolbar" aria-label="Điều khiển Hologram">
@@ -154,11 +194,11 @@ const safeStore={get(storage,key){try{return storage.getItem(key)}catch{return n
 const DEFAULT_PREFS={model:MODEL_DEFAULT,voice:'Aoede',personality:'concise',instructions:'',mirror:'vertical',quality:'balanced',lowMotion:false,showFPS:false,volume:100,inputDevice:'',outputDevice:''};
 function readPrefs(){try{return {...DEFAULT_PREFS,...JSON.parse(safeStore.get(localStorage,STORAGE_PREF)||'{}')}}catch{return {...DEFAULT_PREFS}}}
 const prefs=readPrefs();
-const state={phase:'idle',buttonTick:new Map(),controlFadeTimer:0,controlsLastActive:-Infinity,typingFrame:0,typingAt:0,typedText:'',targetText:'',hideOrbTimer:0,speechHoldTimer:0,epoch:0,connectId:0,desired:false,connected:false,session:null,client:null,sdkPromise:null,startPromise:null,reconnectTimer:0,reconnectCount:0,micMuted:false,aiMuted:false,videoActive:false,videoEpoch:0,videoAbort:null,videoTitle:'',pendingMedia:null,commandTimer:0,lastCommand:null,turnInput:'',turnOutput:'',pendingRender:0,renderHeading:'',renderBody:'',toastTimer:0,settingsOpen:false,lastSendError:0,suppressAudioUntil:0,cancelledToolIds:new Set()};
+const state={visualPhase:'orb',visualEpoch:0,visualReadyAt:0,visualTimer:0,queuedSpeechText:'',speechShownAt:0,phase:'idle',buttonTick:new Map(),controlFadeTimer:0,controlsLastActive:-Infinity,typingFrame:0,typingAt:0,typedText:'',targetText:'',hideOrbTimer:0,speechHoldTimer:0,epoch:0,connectId:0,desired:false,connected:false,session:null,client:null,sdkPromise:null,startPromise:null,reconnectTimer:0,reconnectCount:0,micMuted:false,aiMuted:false,videoActive:false,videoEpoch:0,videoAbort:null,videoTitle:'',pendingMedia:null,commandTimer:0,lastCommand:null,turnInput:'',turnOutput:'',pendingRender:0,renderHeading:'',renderBody:'',toastTimer:0,settingsOpen:false,lastSendError:0,suppressAudioUntil:0,cancelledToolIds:new Set()};
 const STATUS={idle:['Chờ kết nối',0],connecting:['Đang kết nối…',22],listening:['Đang lắng nghe',38],thinking:['Đang xử lý',68],speaking:['AI đang nói',100],error:['Có lỗi',100]};
 function scaleStage(){const scale=Math.min(innerWidth/1280,innerHeight/720);document.documentElement.style.setProperty('--stage-scale',Math.max(.01,scale));if(orb.ctx)orb.resize()}
 window.addEventListener('resize',scaleStage,{passive:true});
-function setStatus(status,detail=''){const [label,progress]=STATUS[status]||STATUS.idle;state.phase=status;$['state-display'].dataset.status=status;$['state-label'].textContent=detail||label;$['progress'].style.width=progress+'%';orb.status=status;if(status==='speaking'&&state.settingsOpen)closeSettings(false);renderButtons();if(!state.videoActive&&!state.settingsOpen&&status==='thinking'&&!$['speech'].classList.contains('on')){orb.setVisible(true)}}
+function setStatus(status,detail=''){const [label,progress]=STATUS[status]||STATUS.idle;state.phase=status;$['state-display'].dataset.status=(status==='speaking'&&state.visualPhase==='thinking')?'thinking':status;$['state-label'].textContent=(status==='speaking'&&state.visualPhase==='thinking')?'Đang chuẩn bị phản hồi…':(detail||label);$['progress'].style.width=progress+'%';orb.status=state.visualPhase==='thinking'?'thinking':status;if(status==='speaking'&&state.settingsOpen)closeSettings(false);renderButtons();if(!state.videoActive&&!state.settingsOpen&&status==='thinking'&&!$['speech'].classList.contains('on')){orb.setVisible(true)}}
 function toast(message,ms=3800){$['toast'].textContent=String(message||'Có lỗi xảy ra');$['toast'].classList.add('on');clearTimeout(state.toastTimer);state.toastTimer=setTimeout(()=>$['toast'].classList.remove('on'),ms)}
 /* Phân biệt lỗi YouTube với lỗi thiết bị: HTTPS trong URL không có nghĩa là thiếu HTTPS cho micro. */
 function errorText(error,source='general'){
@@ -188,31 +228,103 @@ function youtubeApiError(data,httpStatus){
 }
 function aiSpeaking(){return state.phase==='speaking'||!!audio.sources?.size}
 function renderButtons(){let on=state.desired;const mic=$['btn-mic'];mic.classList.toggle('active',on);mic.setAttribute('aria-label',on?'Dừng cuộc trò chuyện':'Bắt đầu cuộc trò chuyện');$['btn-mute-mic'].disabled=!on;$['btn-mute-mic'].classList.toggle('active',state.micMuted);$['btn-mute-mic'].setAttribute('aria-pressed',String(state.micMuted));$['btn-mute-ai'].classList.toggle('active',state.aiMuted);$['btn-mute-ai'].setAttribute('aria-pressed',String(state.aiMuted));for(const id of ['btn-settings','btn-video','save-settings','discover-models','search-video'])$[id].disabled=aiSpeaking();}
-function applyMirror(){const t={vertical:'scaleX(-1)',horizontal:'scaleY(-1)',both:'scale(-1,-1)',none:'none'};$['scene-inner'].style.transform=t[prefs.mirror]||'none';$['btn-mirror'].classList.toggle('active',prefs.mirror!=='none')}
+function applyMirror(){const t={vertical:'scaleX(-1)',horizontal:'scaleY(-1)',both:'scale(-1,-1)',none:'none'};$['orb'].style.transform=t[prefs.mirror]||'none';$['btn-mirror'].classList.toggle('active',prefs.mirror!=='none')}
 function applyPrefs(){document.documentElement.classList.toggle('low-motion',!!prefs.lowMotion);$['performance'].hidden=!prefs.showFPS;orb.quality=prefs.quality;audio.setVolume(prefs.volume/100);applyMirror()}
-function showOrb(){if(state.videoActive)return;clearTimeout(state.speechHoldTimer);clearTimeout(state.hideOrbTimer);if(state.phase!=='thinking')$['thinking-caption'].classList.remove('on');$['speech'].classList.remove('on');$['speech'].classList.remove('title-only');$['orb-wrap'].classList.remove('off');cancelAnimationFrame(state.typingFrame);state.typingFrame=0;$['speech-body'].classList.remove('typing');orb.setVisible(!state.settingsOpen&&!document.hidden)}
+function showOrb(){
+ if(state.videoActive)return;
+ clearTimeout(state.visualTimer);state.visualTimer=0;state.visualEpoch++;
+ state.visualPhase='orb';state.queuedSpeechText='';
+ clearTimeout(state.speechHoldTimer);clearTimeout(state.hideOrbTimer);
+ if(state.phase!=='thinking')$['thinking-caption'].classList.remove('on');
+ // CSS children always have transitions, including on exit. Removing 'on' no longer cancels a one-way animation.
+ $['speech'].classList.remove('on');$['speech'].classList.remove('title-only');
+ $['orb-wrap'].classList.remove('off');
+ cancelAnimationFrame(state.typingFrame);state.typingFrame=0;
+ $['speech-body'].classList.remove('typing');
+ orb.status=state.phase;orb.setVisible(!state.settingsOpen&&!document.hidden);
+}
+/* Every AI reply passes through the visible thinking morph. Audio playback is not delayed. */
+function beginThinkingVisual(caption=''){
+ if(state.videoActive)return;
+ if(state.visualPhase==='thinking'){
+  if(caption){$['thinking-caption'].textContent=caption;$['thinking-caption'].classList.add('on')}
+  return;
+ }
+ showOrb();
+ state.visualPhase='thinking';state.visualReadyAt=performance.now()+640;
+ orb.status='thinking';
+ $['thinking-caption'].textContent=caption||'Đang chuẩn bị phản hồi…';
+ $['thinking-caption'].classList.add('on');
+ if(state.phase!=='speaking')setStatus('thinking');
+}
+function queueSpeechVisual(text=''){
+ if(state.videoActive)return;
+ if(state.visualPhase!=='thinking'&&state.visualPhase!=='speech')beginThinkingVisual();
+ if(text)state.queuedSpeechText=String(text);
+ if(state.visualPhase==='speech'){
+  if(text)showSpeech('Hologram AI',state.queuedSpeechText);
+  return;
+ }
+ if(state.visualTimer)return;
+ const epoch=state.visualEpoch;
+ state.visualTimer=setTimeout(()=>{
+  state.visualTimer=0;
+  if(epoch!==state.visualEpoch||state.videoActive||!state.desired)return;
+  state.visualPhase='speech';state.speechShownAt=performance.now();
+  // If Live streams audio before transcription, show a large Hologram AI title instead of an empty scene.
+  showSpeech('Hologram AI',state.queuedSpeechText);
+  orb.status='speaking';
+  if(state.phase==='speaking')setStatus('speaking');
+ },Math.max(0,state.visualReadyAt-performance.now()));
+}
+
 function formatSpeech(text){return String(text||'').replace(/\s*\n\s*/g,' ').replace(/\s{2,}/g,' ').trim().slice(-560)}
-function typeTick(t){state.typingFrame=0;if(!$['speech'].classList.contains('on')||state.videoActive)return;if(t-state.typingAt<27){state.typingFrame=requestAnimationFrame(typeTick);return}state.typingAt=t;const wanted=state.targetText,body=$['speech-body'];if(!wanted.startsWith(state.typedText))state.typedText='';const gap=wanted.length-state.typedText.length;if(gap>0){state.typedText=wanted.slice(0,state.typedText.length+Math.min(32,Math.max(3,Math.ceil(gap*.18))));body.textContent=state.typedText;body.classList.add('typing');state.typingFrame=requestAnimationFrame(typeTick)}else{body.textContent=wanted;body.classList.remove('typing')}}
-function showSpeech(heading,text){if(state.videoActive)return;clearTimeout(state.speechHoldTimer);$['thinking-caption'].classList.remove('on');state.renderHeading=heading;state.renderBody=text;if(state.pendingRender)return;state.pendingRender=requestAnimationFrame(()=>{state.pendingRender=0;if(state.videoActive)return;const title=state.renderHeading||'Hologram AI',content=formatSpeech(state.renderBody),n=content.length;$['speech-heading'].textContent=title==='Hologram'?'HOLOGRAM AI':title;$['speech'].classList.toggle('title-only',!n);const body=$['speech-body'];body.classList.remove('big','medium','small','tiny');body.classList.add(n<=90?'big':n<=175?'medium':n<=360?'small':'tiny');if(!$['speech'].classList.contains('on')){state.typedText='';body.textContent='';}$['speech'].classList.add('on');$['orb-wrap'].classList.add('off');state.targetText=content;clearTimeout(state.hideOrbTimer);orb.setVisible(true);state.hideOrbTimer=setTimeout(()=>{if($['orb-wrap'].classList.contains('off'))orb.setVisible(false)},1050);if(!state.typingFrame)state.typingFrame=requestAnimationFrame(typeTick)})}
+function typeTick(t){
+ state.typingFrame=0;
+ if(!$['speech'].classList.contains('on')||state.videoActive)return;
+ if(t-state.typingAt<38){state.typingFrame=requestAnimationFrame(typeTick);return}
+ state.typingAt=t;
+ const wanted=state.targetText,body=$['speech-body'];
+ if(!wanted.startsWith(state.typedText)){
+  // A long response has scrolled past the visible window. Replace in place;
+  // do not erase the text for one frame (which looked like a hard cut).
+  const a=state.typedText,b=wanted;
+  const first=b.slice(0,Math.min(42,b.length));
+  const offset=first?a.indexOf(first):-1;
+  // A sliding transcript window usually overlaps almost completely with the previous one.
+  // Retain that overlap instead of shrinking a 560-character paragraph to 80 characters.
+  state.typedText=offset>=0?a.slice(offset):b;
+ }
+ const gap=wanted.length-state.typedText.length;
+ if(gap>0){
+  const n=Math.min(22,Math.max(2,Math.ceil(gap*.12)));
+  state.typedText=wanted.slice(0,state.typedText.length+n);
+  body.textContent=state.typedText;
+  body.classList.add('typing');
+  state.typingFrame=requestAnimationFrame(typeTick);
+ }else{body.textContent=wanted;body.classList.remove('typing')}
+}
+
+function showSpeech(heading,text){if(state.videoActive)return;clearTimeout(state.speechHoldTimer);$['thinking-caption'].classList.remove('on');state.renderHeading=heading;state.renderBody=text;if(state.pendingRender)return;state.pendingRender=requestAnimationFrame(()=>{state.pendingRender=0;if(state.videoActive)return;const title=state.renderHeading||'Hologram AI',content=formatSpeech(state.renderBody),n=content.length;$['speech-heading'].textContent=title==='Hologram'?'HOLOGRAM AI':title;$['speech'].classList.toggle('title-only',!n);const body=$['speech-body'];body.classList.remove('big','medium','small','tiny');body.classList.add(n<=90?'big':n<=175?'medium':n<=360?'small':'tiny');if(!$['speech'].classList.contains('on')){state.typedText='';body.textContent='';}$['speech'].classList.add('on');$['orb-wrap'].classList.add('off');state.targetText=content;clearTimeout(state.hideOrbTimer);orb.setVisible(true);state.hideOrbTimer=setTimeout(()=>{if($['orb-wrap'].classList.contains('off'))orb.setVisible(false)},1300);if(!state.typingFrame)state.typingFrame=requestAnimationFrame(typeTick)})}
 /* Orb Canvas2D only: capped DPR, no shader, pause behind overlays and in hidden tab. */
 const orb={ctx:null,w:570,h:570,quality:prefs.quality,status:'idle',visible:true,raf:0,last:0,smooth:0,levelIn:0,levelOut:0,particles:[],lastFps:0,frames:0,thinkMix:0,
- init(){this.ctx=$['orb'].getContext('2d',{alpha:true});for(let i=0;i<60;i++)this.particles.push({a:Math.random()*6.283,r:.12+Math.random()*.85,s:.11+Math.random()*.26,z:.5+Math.random()*1.55,o:.07+Math.random()*.27,tilt:Math.random()*6.28});this.resize();this.setVisible(true)},
+ init(){this.ctx=$['orb'].getContext('2d',{alpha:true});for(let i=0;i<172;i++)this.particles.push({a:Math.random()*6.283,r:.08+Math.random()*1.17,s:.085+Math.random()*.33,z:.35+Math.random()*1.5,o:.09+Math.random()*.39,tilt:Math.random()*6.28,phase:Math.random()*6.28});this.resize();this.setVisible(true)},
  resize(){const sz=Math.max(50,$['orb'].clientWidth||570),scale=Math.min(innerWidth/1280,innerHeight/720),dpr=Math.min(Math.max(.75,(devicePixelRatio||1)*scale),this.quality==='eco'?1.25:1.85);this.w=sz;this.h=sz;$['orb'].width=Math.round(sz*dpr);$['orb'].height=Math.round(sz*dpr);this.ctx.setTransform(dpr,0,0,dpr,0,0)},
  setVisible(v){this.visible=!!v;if(!this.visible){if(this.raf)cancelAnimationFrame(this.raf);this.raf=0;this.last=0}else if(!this.raf)this.raf=requestAnimationFrame(t=>this.loop(t))},
  setLevel(type,value){if(type==='in')this.levelIn=Math.max(this.levelIn,Math.min(1,value));else this.levelOut=Math.max(this.levelOut,Math.min(1,value))},
- loop(t){this.raf=0;if(!this.visible||document.hidden)return;const active=this.status==='listening'||this.status==='speaking'||this.status==='thinking',slow=prefs.lowMotion;const fps=this.quality==='eco'?(active?34:22):(active?(slow?40:55):(slow?24:35));if(!this.last||t-this.last>=1000/fps){this.last=t;this.smooth+=(Math.max(this.levelIn,this.levelOut)-this.smooth)*.18;this.levelIn*=.75;this.levelOut*=.78;this.thinkMix+=((this.status==='thinking'?1:0)-this.thinkMix)*.095;if(Math.abs(this.thinkMix-(this.status==='thinking'?1:0))<.005)this.thinkMix=this.status==='thinking'?1:0;this.draw(t/1000);this.frames++;if(t-this.lastFps>1600){if(this.lastFps&&prefs.showFPS)$['performance'].textContent='Canvas '+(this.frames*1000/(t-this.lastFps)).toFixed(0)+' FPS · '+this.quality;this.frames=0;this.lastFps=t}}this.raf=requestAnimationFrame(x=>this.loop(x))},
+ loop(t){this.raf=0;if(!this.visible||document.hidden)return;const active=this.status==='listening'||this.status==='speaking'||this.status==='thinking',slow=prefs.lowMotion;const fps=this.quality==='eco'?(active?32:22):(active?(slow?43:58):(slow?28:42));if(!this.last||t-this.last>=1000/fps){this.last=t;this.smooth+=(Math.max(this.levelIn,this.levelOut)-this.smooth)*.18;this.levelIn*=.75;this.levelOut*=.78;this.thinkMix+=((this.status==='thinking'?1:0)-this.thinkMix)*.095;if(Math.abs(this.thinkMix-(this.status==='thinking'?1:0))<.005)this.thinkMix=this.status==='thinking'?1:0;this.draw(t/1000);this.frames++;if(t-this.lastFps>1600){if(this.lastFps&&prefs.showFPS)$['performance'].textContent='Canvas '+(this.frames*1000/(t-this.lastFps)).toFixed(0)+' FPS · '+this.quality;this.frames=0;this.lastFps=t}}this.raf=requestAnimationFrame(x=>this.loop(x))},
  draw(t){const c=this.ctx,w=this.w,h=this.h,x=w/2,y=h/2,level=this.smooth,blend=Math.min(1,Math.max(0,this.thinkMix));c.clearRect(0,0,w,h);
  // Hue travels slowly around the spectrum: turquoise → azure → violet → gold → emerald.
- const hue=(176+t*5.0)%360, R=w*.285*(1+.018*Math.sin(t*.85)+level*.095), sphereAlpha=1-blend,glow=R*(1.68+level*.18);
- c.save();c.globalAlpha=.87;const halo=c.createRadialGradient(x,y,R*.2,x,y,glow);halo.addColorStop(0,`hsla(${hue},86%,57%,${.21+level*.11})`);halo.addColorStop(.45,`hsla(${(hue+24)%360},75%,53%,.095)`);halo.addColorStop(1,`hsla(${hue},90%,50%,0)`);c.fillStyle=halo;c.beginPath();c.arc(x,y,glow,0,6.283);c.fill();c.restore();
+ const hue=(176+t*3.9)%360, R=w*.285*(1+.018*Math.sin(t*.85)+level*.09), sphereAlpha=1-blend,glow=R*(1.83+level*.20);
+ c.save();c.globalAlpha=.92;const halo=c.createRadialGradient(x,y,R*.2,x,y,glow);halo.addColorStop(0,`hsla(${hue},86%,66%,${.29+level*.1})`);halo.addColorStop(.45,`hsla(${(hue+24)%360},79%,57%,.13)`);halo.addColorStop(1,`hsla(${hue},90%,50%,0)`);c.fillStyle=halo;c.beginPath();c.arc(x,y,glow,0,6.283);c.fill();c.restore();
  if(sphereAlpha>.001){c.save();c.globalAlpha=sphereAlpha;c.translate(x,y);const rr=R*(1-.22*blend);c.scale(rr/R,rr/R);c.translate(-x,-y);
  const shell=c.createRadialGradient(x-R*.33,y-R*.37,R*.025,x+R*.08,y+R*.15,R*1.28);shell.addColorStop(0,`hsla(${(hue+25)%360},88%,91%,.91)`);shell.addColorStop(.13,`hsla(${(hue+8)%360},87%,72%,.72)`);shell.addColorStop(.43,`hsla(${hue},78%,48%,.53)`);shell.addColorStop(.77,`hsla(${(hue+17)%360},83%,25%,.72)`);shell.addColorStop(1,'rgba(0,7,15,.93)');c.fillStyle=shell;c.beginPath();c.arc(x,y,R,0,6.283);c.fill();
  c.save();c.beginPath();c.arc(x,y,R-1,0,6.283);c.clip();const sheen=c.createLinearGradient(x-R,y-R,x+R,y+R);sheen.addColorStop(0,'rgba(255,255,255,.13)');sheen.addColorStop(.43,'rgba(255,255,255,0)');sheen.addColorStop(.8,`hsla(${(hue+45)%360},88%,52%,.08)`);sheen.addColorStop(1,'rgba(0,0,0,.35)');c.fillStyle=sheen;c.fillRect(x-R,y-R,R*2,R*2);
  // Two latitude curves and a faint rotating meridian add depth without WebGL/shaders.
  c.lineWidth=1;c.strokeStyle=`hsla(${(hue+20)%360},95%,92%,.14)`;for(let i=-1;i<=1;i++){c.beginPath();c.ellipse(x,y+i*R*.21,R*.97,R*(.30+Math.abs(i)*.04),Math.sin(t*.09)*.15,0,6.283);c.stroke()}c.beginPath();c.ellipse(x,y,R*.32,R*.97,Math.sin(t*.11)*.38,0,6.283);c.strokeStyle='rgba(255,255,255,.08)';c.stroke();
  c.globalCompositeOperation='screen';const spot=c.createRadialGradient(x-R*.47,y-R*.57,0,x-R*.39,y-R*.48,R*.76);spot.addColorStop(0,'rgba(255,255,255,.28)');spot.addColorStop(.3,'rgba(208,250,251,.09)');spot.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=spot;c.fillRect(x-R,y-R,R*2,R*2);c.globalCompositeOperation='source-over';c.restore();
- c.lineWidth=1.2;c.strokeStyle=`hsla(${hue},92%,74%,.34)`;c.beginPath();c.arc(x,y,R,0,6.283);c.stroke();for(let i=0;i<2;i++){c.beginPath();c.ellipse(x,y,R*(1.10+i*.18),R*(.90+i*.22),Math.sin(t*.13+i)*.17,0,6.283);c.strokeStyle=`hsla(${(hue+15)%360},80%,75%,${.15-i*.05})`;c.stroke()}
- const count=this.quality==='eco'?25:48;for(let i=0;i<count;i++){const p=this.particles[i],a=p.a+t*p.s,depth=Math.sin(a+p.tilt),px=x+Math.cos(a)*R*p.r,py=y+Math.sin(a*1.18)*R*p.r*.79,scale=.7+.45*(depth+1);c.fillStyle=`hsla(${(hue+45)%360},96%,92%,${p.o*(.52+.48*(depth+1)/2)})`;c.beginPath();c.arc(px,py,p.z*scale,0,6.283);c.fill()}c.restore()}
+ c.lineWidth=1.2;c.strokeStyle=`hsla(${hue},92%,84%,.48)`;c.beginPath();c.arc(x,y,R,0,6.283);c.stroke();for(let i=0;i<2;i++){c.beginPath();c.ellipse(x,y,R*(1.10+i*.18),R*(.90+i*.22),Math.sin(t*.13+i)*.17,0,6.283);c.strokeStyle=`hsla(${(hue+15)%360},80%,75%,${.15-i*.05})`;c.stroke()}
+ const count=this.quality==='eco'?54:128;for(let i=0;i<count;i++){const p=this.particles[i],a=p.a+t*p.s,depth=Math.sin(a+p.tilt),px=x+Math.cos(a)*R*p.r,py=y+Math.sin(a*1.18)*R*p.r*.79,scale=.55+.4*(depth+1),twinkle=.72+.28*Math.sin(t*.85+p.phase);c.fillStyle=`hsla(${(hue+45)%360},96%,92%,${p.o*(.45+.55*(depth+1)/2)*twinkle})`;c.beginPath();c.arc(px,py,p.z*scale,0,6.283);c.fill()}c.restore()}
  if(blend>.002){c.save();c.globalAlpha=blend;for(let i=0;i<3;i++){const dx=x+(i-1)*71,dy=y+Math.sin(t*2.4+i*1.15)*8,r=9+Math.sin(t*2.5+i*1.2)*1.7;const g=c.createRadialGradient(dx,dy,0,dx,dy,29);g.addColorStop(0,`hsla(${(hue+i*16)%360},85%,93%,.96)`);g.addColorStop(.24,`hsla(${(hue+i*16)%360},87%,71%,.78)`);g.addColorStop(1,`hsla(${hue},90%,52%,0)`);c.fillStyle=g;c.beginPath();c.arc(dx,dy,29,0,6.283);c.fill();c.fillStyle='rgba(238,255,251,.88)';c.beginPath();c.arc(dx,dy,Math.max(3,r*.56),0,6.283);c.fill()}c.restore()}
  }};
 /* A lightweight AudioWorklet: sends 40ms chunks, no Array.shift/splice or per-sample dynamic arrays. */
@@ -291,22 +403,70 @@ async function connectLive(epoch){if(!getGeminiKey())throw new Error('Chưa nh�
  if(!liveValid(epoch,connectId)||closedEarly){try{session.close()}catch{}if(closedEarly&&liveValid(epoch,connectId))throw new Error('Kết nối Live đã đóng trong lúc khởi tạo');return false}
  state.session=session;state.connected=true;state.reconnectCount=0;state.turnInput='';state.turnOutput='';setStatus('listening');showOrb();return true
  }catch(e){if(liveValid(epoch,connectId))state.connected=false;throw e}}
-function afterSpeech(){if(state.desired&&state.connected){setStatus(state.micMuted?'idle':'listening');if(!state.videoActive){clearTimeout(state.speechHoldTimer);state.speechHoldTimer=setTimeout(()=>{if((state.phase==='listening'||state.phase==='idle')&&!state.videoActive)showOrb()},1400)}}else if(!state.desired){setStatus('idle');showOrb()}}
+function afterSpeech(){
+ if(state.desired&&state.connected){
+  setStatus(state.micMuted?'idle':'listening');
+  if(!state.videoActive){
+   clearTimeout(state.speechHoldTimer);
+   const hold=Math.max(1600,state.speechShownAt+2450-performance.now(),state.visualReadyAt+2000-performance.now());
+   state.speechHoldTimer=setTimeout(()=>{
+    if((state.phase==='listening'||state.phase==='idle')&&!state.videoActive)showOrb();
+   },hold);
+  }
+ }else if(!state.desired){setStatus('idle');showOrb()}
+}
+
 function clearCommand(){clearTimeout(state.commandTimer);state.commandTimer=0;state.pendingMedia=null;state.turnInput=''}
 function scheduleMedia(command){if(!command)return;state.suppressAudioUntil=Date.now()+2200;audio.cancel();state.pendingMedia=command;clearTimeout(state.commandTimer);if(command.type!=='play'){void flushMedia();return}state.commandTimer=setTimeout(()=>void flushMedia(),420)}
 async function flushMedia(){clearTimeout(state.commandTimer);state.commandTimer=0;const c=state.pendingMedia;state.pendingMedia=null;if(c)await executeMedia(c)}
 async function executeMedia(c){const key=c.type+':'+(c.query||'');if(state.lastCommand?.key===key&&Date.now()-state.lastCommand.at<1500)return state.lastCommand.promise;const promise=(async()=>{if(c.type==='stop'){closeVideo();return true}if(c.type==='pause'){videoPause();return true}if(c.type==='resume'){videoResume();return true}if(c.type==='play')return Boolean(await openVideo(c.query));return false})();state.lastCommand={key,at:Date.now(),promise};return promise}
-function handleInputTranscript(t){state.turnInput=mergeTranscript(state.turnInput,t);const cmd=parseMediaCommand(state.turnInput);if(cmd){scheduleMedia(cmd);return}if(state.connected){setStatus('thinking');showOrb();$['thinking-caption'].textContent=state.turnInput.slice(-185);$['thinking-caption'].classList.add('on');}}
+function handleInputTranscript(t){
+ state.turnInput=mergeTranscript(state.turnInput,t);
+ const cmd=parseMediaCommand(state.turnInput);
+ if(cmd){scheduleMedia(cmd);return}
+ if(state.connected){
+  // Repeated partial transcripts update the caption but don't restart the morph timer.
+  beginThinkingVisual(state.turnInput.slice(-175));
+  if(!aiSpeaking())setStatus('thinking');
+ }
+}
+
 async function handleToolCall(msg,epoch,connectId){const calls=msg?.toolCall?.functionCalls||[];if(!calls.length)return;const responses=[];for(const f of calls){if(!liveValid(epoch,connectId))return;if(state.cancelledToolIds.has(f.id))continue;let command=null;if(f.name==='open_video'&&String(f.args?.query||'').trim())command={type:'play',query:String(f.args.query)};if(f.name==='stop_video')command={type:'stop'};if(f.name==='pause_video')command={type:'pause'};if(f.name==='resume_video')command={type:'resume'};let ok=false;try{if(command){state.suppressAudioUntil=Date.now()+2200;audio.cancel();clearCommand();ok=await executeMedia(command)}}catch(e){toast(errorText(e,'youtube'))}if(!liveValid(epoch,connectId)||state.cancelledToolIds.has(f.id))return;responses.push({id:f.id,name:f.name,response:{ok,action:command?.type||'unknown',status:command?.type==='play'&&ok?'player_loading':ok?'command_sent':'failed'}})}if(responses.length&&liveValid(epoch,connectId))try{state.session?.sendToolResponse({functionResponses:responses})}catch(e){toast('Không phản hồi được lệnh công cụ: '+errorText(e))}}
-async function handleLiveMessage(msg,epoch,connectId){if(!liveValid(epoch,connectId))return;
+async function handleLiveMessage(msg,epoch,connectId){
+ if(!liveValid(epoch,connectId))return;
  if(msg?.toolCallCancellation?.ids)for(const id of msg.toolCallCancellation.ids)state.cancelledToolIds.add(id);
  if(msg?.toolCall?.functionCalls?.length)void handleToolCall(msg,epoch,connectId);
- const sc=msg.serverContent;if(sc?.interrupted){audio.cancel();state.turnOutput='';if(state.connected)setStatus('listening')}
- const interim=sc?.interimInputTranscription?.text;if(interim){const earlyCommand=parseMediaCommand(interim);if(earlyCommand)scheduleMedia(earlyCommand)}
- const ti=msg?.inputTranscription?.text??sc?.inputTranscription?.text;if(ti)handleInputTranscript(ti);
- const to=msg?.outputTranscription?.text??sc?.outputTranscription?.text;if(to&&Date.now()>state.suppressAudioUntil){state.turnOutput=mergeTranscript(state.turnOutput,to);if(!state.videoActive)showSpeech('Hologram',state.turnOutput);setStatus('speaking')}
- for(const part of sc?.modelTurn?.parts||[])if(part.inlineData?.data&&Date.now()>state.suppressAudioUntil){try{audio.enqueue(part.inlineData.data,Number(part.inlineData.mimeType?.match(/rate=(\d+)/)?.[1])||OUTPUT_RATE);setStatus('speaking')}catch(e){toast('Lỗi phát âm thanh: '+errorText(e))}}
- if(sc?.turnComplete){void flushMedia();audio.markDone();state.turnInput='';state.turnOutput='';if(state.cancelledToolIds.size>128)state.cancelledToolIds.clear()}
+ const sc=msg.serverContent;
+ if(sc?.interrupted){
+  audio.cancel();state.turnOutput='';
+  showOrb();
+  if(state.connected)setStatus('listening');
+ }
+ const interim=sc?.interimInputTranscription?.text;
+ if(interim){const earlyCommand=parseMediaCommand(interim);if(earlyCommand)scheduleMedia(earlyCommand)}
+ const ti=msg?.inputTranscription?.text??sc?.inputTranscription?.text;
+ if(ti)handleInputTranscript(ti);
+ const parts=sc?.modelTurn?.parts||[];
+ const rawOutput=msg?.outputTranscription?.text??sc?.outputTranscription?.text
+  ??parts.filter(p=>typeof p?.text==='string'&&!p?.thought).map(p=>p.text).join(' ');
+ const canShow=Date.now()>state.suppressAudioUntil;
+ if(rawOutput&&canShow){
+  state.turnOutput=mergeTranscript(state.turnOutput,rawOutput);
+  queueSpeechVisual(state.turnOutput);
+  setStatus('speaking');
+ }
+ for(const part of parts){
+  if(!part?.inlineData?.data||!canShow)continue;
+  try{
+   audio.enqueue(part.inlineData.data,Number(part.inlineData.mimeType?.match(/rate=(\d+)/)?.[1])||OUTPUT_RATE);
+   queueSpeechVisual(state.turnOutput);
+   setStatus('speaking');
+  }catch(e){toast('Lỗi phát âm thanh: '+errorText(e))}
+ }
+ if(sc?.turnComplete){
+  void flushMedia();audio.markDone();state.turnInput='';state.turnOutput='';
+  if(state.cancelledToolIds.size>128)state.cancelledToolIds.clear();
+ }
 }
 async function start(){if(state.desired)return;if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){toast('Hãy mở file bằng HTTPS hoặc http://localhost để dùng microphone.');setStatus('error');return}if(!getGeminiKey()){openSettings();toast('Hãy nhập Gemini API Key trước.');return}
  const epoch=++state.epoch;state.desired=true;state.micMuted=false;state.reconnectCount=0;setStatus('connecting','Đang xin quyền microphone…');renderButtons();let obtained=null;
@@ -349,7 +509,7 @@ function bind(){
  guardedClick('btn-video',()=>{if(openSettings())$['video-search-input'].focus()});
  guardedClick('btn-text',()=>{$['quick-text'].hidden=!$['quick-text'].hidden;if(!$['quick-text'].hidden)$['quick-input'].focus()});
  guardedClick('quick-close',()=>$['quick-text'].hidden=true);
- $['quick-text'].addEventListener('submit',e=>{e.preventDefault();const now=performance.now(),prev=state.buttonTick.get('quick-submit')??-Infinity;if(now-prev<550)return;state.buttonTick.set('quick-submit',now);const text=$['quick-input'].value.trim();if(!text)return;const cmd=parseMediaCommand(text);if(cmd){void executeMedia(cmd)}else if(state.session&&state.connected){try{state.session.sendRealtimeInput({text});showSpeech('Bạn đã gửi',text)}catch(err){toast(errorText(err))}}else toast('Hãy kết nối Gemini Live trước, hoặc nhập lệnh video.');$['quick-input'].value=''});
+ $['quick-text'].addEventListener('submit',e=>{e.preventDefault();const now=performance.now(),prev=state.buttonTick.get('quick-submit')??-Infinity;if(now-prev<550)return;state.buttonTick.set('quick-submit',now);const text=$['quick-input'].value.trim();if(!text)return;const cmd=parseMediaCommand(text);if(cmd){void executeMedia(cmd)}else if(state.session&&state.connected){try{state.session.sendRealtimeInput({text});beginThinkingVisual('Đã gửi: '+text.slice(0,140))}catch(err){toast(errorText(err))}}else toast('Hãy kết nối Gemini Live trước, hoặc nhập lệnh video.');$['quick-input'].value=''});
  guardedClick('btn-mirror',()=>{const modes=['vertical','horizontal','both','none'];prefs.mirror=modes[(modes.indexOf(prefs.mirror)+1)%modes.length];safeStore.set(localStorage,STORAGE_PREF,JSON.stringify(prefs));applyMirror();toast('Lật gương: '+({vertical:'ngang',horizontal:'dọc',both:'hai chiều',none:'tắt'}[prefs.mirror]),1000)});
  guardedClick('btn-settings',openSettings);guardedClick('cancel-settings',()=>closeSettings());$['overlay'].addEventListener('click',()=>closeSettings());guardedClick('save-settings',saveSettings,650);
  $['volume'].addEventListener('input',()=>{$['volume-label'].textContent=$['volume'].value+'%';audio.setVolume(Number($['volume'].value)/100)});
