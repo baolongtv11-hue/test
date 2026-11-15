@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050608">
 <meta name="description" content="Hologram Gemini Live, một HTML, Canvas 2D nhẹ, điều khiển video bằng giọng nói.">
-<title>Hologram AI · Aero Liquid Motion</title>
+<title>Hologram AI · Aero Cinematic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#050608;--card:#14171b;--line:#414044;--gold:#e1c28a;--goldsoft:#fff0cc;--white:#f9f8f3;--muted:#a8aab0;--blue:#7aafff;--green:#58cca0;--red:#ff7487;--shadow:0 12px 38px rgba(0,0,0,.4)}
@@ -19,7 +19,7 @@
 #video-layer{position:absolute;inset:0;background:#000;z-index:8;display:none}#video-layer.active{display:block}#yt-host{position:absolute;inset:0;background:#000}#yt-player,#yt-player iframe{width:100%!important;height:100%!important;border:0}#video-top{position:absolute;z-index:3;top:9px;left:12px;right:74px;display:flex;align-items:center;gap:10px;pointer-events:none}#video-title{font-size:12px;background:#000b;max-width:70%;padding:6px 10px;border-radius:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#video-actions{position:absolute;top:60px;left:14px;z-index:4;display:flex;gap:7px}#video-actions button{background:#111e;border:1px solid #555;padding:7px 10px;border-radius:8px;color:white}#video-status{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);padding:6px 12px;background:#000a;border-radius:7px;font-size:12px;pointer-events:none;z-index:3}
 #overlay{position:absolute;inset:0;z-index:18;background:rgba(0,0,0,.74)}#settings{position:absolute;z-index:19;right:0;top:0;bottom:0;width:min(470px,100%);overflow-y:auto;overscroll-behavior:contain;background:#121417;border-left:1px solid #585046;box-shadow:var(--shadow);padding:22px 24px max(26px,env(safe-area-inset-bottom))}#settings h2{font:500 29px Georgia,serif;color:var(--goldsoft);margin:0 0 8px}.sub{color:var(--muted);font-size:12px;line-height:1.55}.section{margin:19px 0 0;padding-top:16px;border-top:1px solid #34383c}.section h3{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.04em;margin:0 0 12px}.field{margin:11px 0}.field>label{display:block;color:#d5d3cb;font-size:12px;margin:0 0 5px}.field input,.field select,.field textarea{width:100%;padding:10px 11px;background:#08090b;border:1px solid #44484d;border-radius:8px;color:#fff}.field textarea{min-height:85px;resize:vertical}.inline{display:flex;gap:9px;align-items:center}.inline>*{flex:1;min-width:0}.check{display:flex;align-items:center;gap:9px;margin:11px 0;color:#d7d7d5;font-size:13px}.check input{accent-color:var(--gold);width:16px;height:16px}.smallbtn{padding:9px 11px;border:1px solid #6a5940;background:#25231f;border-radius:8px;color:var(--goldsoft)}.primary{background:var(--gold);color:#100e0b;border:0;padding:12px 20px;border-radius:9px;font-weight:750}.secondary{background:#2c2d30;border:1px solid #545454;padding:12px 15px;border-radius:9px}.actions{display:flex;gap:8px;position:sticky;bottom:-26px;background:#121417;padding:14px 0 10px;z-index:3}.actions button{flex:1}.readout{border:1px solid #3c403f;background:#1c2021;border-radius:8px;padding:10px 12px;white-space:pre-line;font-size:12px;color:#c6cec8}.readout.error{border-color:#7c4045;color:#ff9ca8}
 #toast{position:absolute;bottom:max(23px,env(safe-area-inset-bottom));left:50%;transform:translate(-50%,10px);z-index:25;max-width:min(620px,calc(100vw - 24px));background:#1c2025;color:#fff;padding:11px 16px;border:1px solid #5e5549;border-radius:10px;box-shadow:var(--shadow);text-align:center;opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease;font-size:13px}#toast.on{opacity:1;transform:translate(-50%,0)}#performance{position:absolute;left:20px;bottom:18px;font-size:11px;color:#9ca0a4;z-index:5;pointer-events:none}
-/* Motion reduction is scoped in AERO VISUAL rules below. */@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media(max-height:560px) and (orientation:landscape){#toolbar{gap:5px}.iconbtn{width:39px;height:39px}.iconbtn svg{width:19px;height:19px}#orb{width:min(74vmin,470px);height:min(74vmin,470px)}#video-actions{top:42px}}
+/* Giảm chuyển động ở từng thành phần, không vô hiệu hóa toàn bộ transition gây hard cut. */@media(max-height:560px) and (orientation:landscape){#toolbar{gap:5px}.iconbtn{width:39px;height:39px}.iconbtn svg{width:19px;height:19px}#orb{width:min(74vmin,470px);height:min(74vmin,470px)}#video-actions{top:42px}}
 @media(orientation:portrait){#topbar{right:16px}#orb{width:min(83vw,470px);height:min(83vw,470px)}#speech{left:7%;right:7%;top:13%;bottom:18%}#toolbar{top:auto;right:10px;left:10px;bottom:max(12px,env(safe-area-inset-bottom));transform:none;flex-direction:row;justify-content:center;gap:7px;flex-wrap:wrap}#toolbar .iconbtn{width:43px;height:43px}#toolbar .tip{display:none}#quick-text{bottom:76px;width:calc(100vw - 20px)}#performance{bottom:84px}#settings{padding:20px}#toast{bottom:92px}#video-actions{top:48px;flex-wrap:wrap;right:10px}}@media(max-width:360px){#toolbar{gap:4px}#toolbar .iconbtn{width:39px;height:39px}}
 
 /* AERO VISUAL v1 — fixed logical 1280×720, scale entire interface without reflow. */
@@ -127,6 +127,44 @@ html.low-motion #speech{transition-duration:.45s}
 html.low-motion #app::before{animation:none}
 html.low-motion #toolbar .iconbtn{backdrop-filter:none;-webkit-backdrop-filter:none}
 @media(prefers-reduced-motion:reduce){#app::before,#topbar .brand.anim{animation:none!important}#speech,#speech .anim,#orb-wrap,#thinking-caption{transition-duration:.2s!important;transition-delay:0s!important}}
+
+/* CINEMATIC MOTION v3: unified duration/easing; overlaps instead of hard cuts. */
+:root{--motion-in:860ms;--motion-out:670ms;--motion-surface:470ms;--motion-glide:cubic-bezier(.18,.78,.2,1);--motion-settle:cubic-bezier(.22,1,.36,1)}
+#scene-inner{perspective:1100px;transform-style:preserve-3d}
+#orb-wrap{transition:opacity var(--motion-out) var(--motion-glide),transform 1050ms var(--motion-settle);transform-origin:center;will-change:opacity,transform}
+#orb-wrap.off{opacity:0;transform:translate3d(0,-22px,-170px) scale(.62)}
+#speech{filter:none!important;opacity:0;transform:translate3d(0,37px,-90px) scale(.963);transition:opacity var(--motion-in) var(--motion-glide),transform 1080ms var(--motion-settle);backface-visibility:hidden}
+#speech.on{opacity:1;transform:translate3d(0,0,0) scale(1)}
+#speech .anim{filter:none!important;opacity:0;transform:translate3d(0,22px,0) scale(.988);animation:none!important;transition:opacity 680ms var(--motion-glide),transform 860ms var(--motion-settle);transition-delay:0ms}
+#speech.on .anim{opacity:1;transform:translate3d(0,0,0) scale(1);transition-delay:calc(110ms + var(--d,0)*100ms)}
+#speech-body{text-wrap:wrap!important;overflow-wrap:anywhere;hyphens:none;transition:font-size 620ms var(--motion-glide),line-height 620ms var(--motion-glide);font-kerning:normal}
+#speech-body.window-shift{animation:textWindowSoft 390ms var(--motion-settle) both}
+@keyframes textWindowSoft{0%{opacity:.62;transform:translate3d(0,9px,0)}100%{opacity:1;transform:translate3d(0,0,0)}}
+#thinking-caption{transition:opacity 520ms var(--motion-glide),transform 760ms var(--motion-settle);filter:none!important;opacity:0;transform:translate3d(0,16px,0)}
+#thinking-caption.on{opacity:1;transform:translate3d(0,0,0)}
+/* Video stays mounted during exit. Visibility is delayed until opacity reaches zero. */
+#video-layer{display:block!important;visibility:hidden;opacity:0;transform:translate3d(0,16px,0) scale(1.014);pointer-events:none;transition:opacity 590ms var(--motion-glide),transform 780ms var(--motion-settle),visibility 0s linear 590ms;will-change:opacity,transform}
+#video-layer.active{display:block!important;visibility:visible;opacity:1;transform:translate3d(0,0,0) scale(1);pointer-events:auto;transition:opacity 620ms var(--motion-glide),transform 800ms var(--motion-settle),visibility 0s linear 0s}
+#overlay{opacity:0;pointer-events:none;transition:opacity 530ms var(--motion-glide);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#overlay.is-open{opacity:1;pointer-events:auto}
+#settings{opacity:0;transform:translate3d(45px,0,0) scale(.983);pointer-events:none;transition:opacity 480ms var(--motion-glide),transform 610ms var(--motion-settle);backface-visibility:hidden;will-change:opacity,transform}
+#settings.is-open{opacity:1;transform:translate3d(0,0,0) scale(1);pointer-events:auto}
+/* Gradient is constant. A lightweight glossy overlay, rather than swapping background gradients. */
+#toolbar .iconbtn{isolation:isolate;overflow:visible;transition:transform 300ms var(--motion-settle),border-color 360ms var(--motion-glide),box-shadow 420ms var(--motion-glide),color 320ms var(--motion-glide)}
+#toolbar .iconbtn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;background:linear-gradient(145deg,rgba(137,241,238,.25),rgba(61,125,161,.08) 58%,rgba(246,231,189,.14));box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:opacity 380ms var(--motion-glide)}
+#toolbar .iconbtn:hover:not(:disabled){background:linear-gradient(158deg,rgba(97,153,170,.23) 0%,rgba(32,66,78,.55) 33%,rgba(7,19,27,.83) 85%)}
+#toolbar .iconbtn:hover:not(:disabled)::after,#toolbar .iconbtn:focus-visible::after{opacity:1}
+#toolbar .iconbtn svg,#toolbar .iconbtn .tip{z-index:2}
+#toolbar .iconbtn:active:not(:disabled){transform:translate3d(-1px,1px,0) scale(.955)}
+#toolbar,#topbar{transition:opacity 880ms var(--motion-glide)}
+html.low-motion #app::before{animation:none}
+html.low-motion #orb-wrap,html.low-motion #speech,html.low-motion #speech .anim,html.low-motion #thinking-caption{transition-duration:440ms!important;transition-delay:0ms!important}
+@media(prefers-reduced-motion:reduce){#app::before,#topbar .brand.anim{animation:none!important}#speech-body.typing::after{animation:none!important}#orb-wrap,#speech,#speech .anim,#thinking-caption,#video-layer,#settings,#overlay{transition-duration:180ms!important;transition-delay:0ms!important}#speech-body.window-shift{animation:none!important}}
+
+/* Subtle entrance / exit for the quick input; no display hard cut. */
+#quick-text{opacity:0;transform:translate3d(-50%,13px,0) scale(.975);pointer-events:none;transition:opacity 350ms var(--motion-glide),transform 450ms var(--motion-settle)}
+#quick-text.is-open{opacity:1;transform:translate3d(-50%,0,0) scale(1);pointer-events:auto}
+@media(prefers-reduced-motion:reduce){#quick-text{transition-duration:180ms!important;transition-delay:0ms!important}}
 </style>
 </head>
 <body>
@@ -194,7 +232,7 @@ const safeStore={get(storage,key){try{return storage.getItem(key)}catch{return n
 const DEFAULT_PREFS={model:MODEL_DEFAULT,voice:'Aoede',personality:'concise',instructions:'',mirror:'vertical',quality:'balanced',lowMotion:false,showFPS:false,volume:100,inputDevice:'',outputDevice:''};
 function readPrefs(){try{return {...DEFAULT_PREFS,...JSON.parse(safeStore.get(localStorage,STORAGE_PREF)||'{}')}}catch{return {...DEFAULT_PREFS}}}
 const prefs=readPrefs();
-const state={visualPhase:'orb',visualEpoch:0,visualReadyAt:0,visualTimer:0,queuedSpeechText:'',speechShownAt:0,phase:'idle',buttonTick:new Map(),controlFadeTimer:0,controlsLastActive:-Infinity,typingFrame:0,typingAt:0,typedText:'',targetText:'',hideOrbTimer:0,speechHoldTimer:0,epoch:0,connectId:0,desired:false,connected:false,session:null,client:null,sdkPromise:null,startPromise:null,reconnectTimer:0,reconnectCount:0,micMuted:false,aiMuted:false,videoActive:false,videoEpoch:0,videoAbort:null,videoTitle:'',pendingMedia:null,commandTimer:0,lastCommand:null,turnInput:'',turnOutput:'',pendingRender:0,renderHeading:'',renderBody:'',toastTimer:0,settingsOpen:false,lastSendError:0,suppressAudioUntil:0,cancelledToolIds:new Set()};
+const state={visualPhase:'orb',visualEpoch:0,visualReadyAt:0,visualTimer:0,queuedSpeechText:'',speechShownAt:0,thinkingCaptionShown:false,settingsExitTimer:0,settingsEnterFrame:0,settingsToken:0,speechPageAt:0,wordRevealAt:0,quickExitTimer:0,quickEnterFrame:0,quickToken:0,phase:'idle',buttonTick:new Map(),controlFadeTimer:0,controlsLastActive:-Infinity,typingFrame:0,typingAt:0,typedText:'',targetText:'',hideOrbTimer:0,speechHoldTimer:0,epoch:0,connectId:0,desired:false,connected:false,session:null,client:null,sdkPromise:null,startPromise:null,reconnectTimer:0,reconnectCount:0,micMuted:false,aiMuted:false,videoActive:false,videoEpoch:0,videoAbort:null,videoTitle:'',pendingMedia:null,commandTimer:0,lastCommand:null,turnInput:'',turnOutput:'',pendingRender:0,renderHeading:'',renderBody:'',toastTimer:0,settingsOpen:false,lastSendError:0,suppressAudioUntil:0,cancelledToolIds:new Set()};
 const STATUS={idle:['Chờ kết nối',0],connecting:['Đang kết nối…',22],listening:['Đang lắng nghe',38],thinking:['Đang xử lý',68],speaking:['AI đang nói',100],error:['Có lỗi',100]};
 function scaleStage(){const scale=Math.min(innerWidth/1280,innerHeight/720);document.documentElement.style.setProperty('--stage-scale',Math.max(.01,scale));if(orb.ctx)orb.resize()}
 window.addEventListener('resize',scaleStage,{passive:true});
@@ -233,27 +271,26 @@ function applyPrefs(){document.documentElement.classList.toggle('low-motion',!!p
 function showOrb(){
  if(state.videoActive)return;
  clearTimeout(state.visualTimer);state.visualTimer=0;state.visualEpoch++;
- state.visualPhase='orb';state.queuedSpeechText='';
+ state.visualPhase='orb';state.queuedSpeechText='';state.thinkingCaptionShown=false;
  clearTimeout(state.speechHoldTimer);clearTimeout(state.hideOrbTimer);
- if(state.phase!=='thinking')$['thinking-caption'].classList.remove('on');
- // CSS children always have transitions, including on exit. Removing 'on' no longer cancels a one-way animation.
- $['speech'].classList.remove('on');$['speech'].classList.remove('title-only');
+ if(state.pendingRender){cancelAnimationFrame(state.pendingRender);state.pendingRender=0}
+ if(state.typingFrame){cancelAnimationFrame(state.typingFrame);state.typingFrame=0}
+ $['thinking-caption'].classList.remove('on');
+ $['speech'].classList.remove('on');
+ $['speech-body'].classList.remove('typing','window-shift');
+ // Keep content mounted until it has faded out; this preserves the CSS exit tween.
  $['orb-wrap'].classList.remove('off');
- cancelAnimationFrame(state.typingFrame);state.typingFrame=0;
- $['speech-body'].classList.remove('typing');
  orb.status=state.phase;orb.setVisible(!state.settingsOpen&&!document.hidden);
 }
-/* Every AI reply passes through the visible thinking morph. Audio playback is not delayed. */
+/* A single cancellable thinking→speaking gate; only the picture waits, never audio. */
 function beginThinkingVisual(caption=''){
  if(state.videoActive)return;
- if(state.visualPhase==='thinking'){
-  if(caption){$['thinking-caption'].textContent=caption;$['thinking-caption'].classList.add('on')}
-  return;
- }
+ if(state.visualPhase==='thinking')return; // Transcript fragments never restart the animation.
  showOrb();
- state.visualPhase='thinking';state.visualReadyAt=performance.now()+640;
- orb.status='thinking';
- $['thinking-caption'].textContent=caption||'Đang chuẩn bị phản hồi…';
+ state.visualPhase='thinking';state.visualReadyAt=performance.now()+620;
+ orb.status='thinking';orb.setVisible(!state.settingsOpen&&!document.hidden);
+ state.thinkingCaptionShown=true;
+ $['thinking-caption'].textContent='Đang chuẩn bị phản hồi…';
  $['thinking-caption'].classList.add('on');
  if(state.phase!=='speaking')setStatus('thinking');
 }
@@ -271,41 +308,89 @@ function queueSpeechVisual(text=''){
   state.visualTimer=0;
   if(epoch!==state.visualEpoch||state.videoActive||!state.desired)return;
   state.visualPhase='speech';state.speechShownAt=performance.now();
-  // If Live streams audio before transcription, show a large Hologram AI title instead of an empty scene.
   showSpeech('Hologram AI',state.queuedSpeechText);
   orb.status='speaking';
   if(state.phase==='speaking')setStatus('speaking');
  },Math.max(0,state.visualReadyAt-performance.now()));
 }
-
 function formatSpeech(text){return String(text||'').replace(/\s*\n\s*/g,' ').replace(/\s{2,}/g,' ').trim().slice(-560)}
+function pickSpeechSize(n){return n<=90?'big':n<=175?'medium':n<=360?'small':'tiny'}
+function revealWords(wanted,current,maxChars=34){
+ if(!wanted.startsWith(current))return wanted.slice(0,Math.min(wanted.length,maxChars));
+ const rest=wanted.slice(current.length);if(!rest)return current;
+ if(rest.length<=maxChars)return wanted;
+ let k=rest.lastIndexOf(' ',maxChars);if(k<Math.ceil(maxChars/2))k=Math.min(rest.length,maxChars);
+ else k++;return current+rest.slice(0,k);
+}
 function typeTick(t){
  state.typingFrame=0;
  if(!$['speech'].classList.contains('on')||state.videoActive)return;
- if(t-state.typingAt<38){state.typingFrame=requestAnimationFrame(typeTick);return}
+ if(t-state.typingAt<64){state.typingFrame=requestAnimationFrame(typeTick);return}
  state.typingAt=t;
  const wanted=state.targetText,body=$['speech-body'];
  if(!wanted.startsWith(state.typedText)){
-  // A long response has scrolled past the visible window. Replace in place;
-  // do not erase the text for one frame (which looked like a hard cut).
-  const a=state.typedText,b=wanted;
-  const first=b.slice(0,Math.min(42,b.length));
-  const offset=first?a.indexOf(first):-1;
-  // A sliding transcript window usually overlaps almost completely with the previous one.
-  // Retain that overlap instead of shrinking a 560-character paragraph to 80 characters.
-  state.typedText=offset>=0?a.slice(offset):b;
+  const old=state.typedText,anchor=wanted.slice(0,Math.min(28,wanted.length));
+  const overlap=anchor?old.indexOf(anchor):-1;
+  state.typedText=overlap>=0?old.slice(overlap):'';
+  // A long transcript may scroll its window: give the shifted page a soft fade.
+  body.classList.remove('window-shift');
+  if(typeof body.animate==='function'&&!prefs.lowMotion){
+   body.getAnimations?.().filter(a=>a.id==='hologram-window-shift').forEach(a=>a.cancel());
+   const anim=body.animate([{opacity:.66,transform:'translate3d(0,9px,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:390,easing:'cubic-bezier(.22,1,.36,1)'});
+   anim.id='hologram-window-shift';
+  }
  }
- const gap=wanted.length-state.typedText.length;
- if(gap>0){
-  const n=Math.min(22,Math.max(2,Math.ceil(gap*.12)));
-  state.typedText=wanted.slice(0,state.typedText.length+n);
+ if(state.typedText.length<wanted.length){
+  state.typedText=revealWords(wanted,state.typedText,Math.min(52,Math.max(22,Math.ceil((wanted.length-state.typedText.length)*.18))));
   body.textContent=state.typedText;
   body.classList.add('typing');
   state.typingFrame=requestAnimationFrame(typeTick);
- }else{body.textContent=wanted;body.classList.remove('typing')}
+ }else{
+  body.textContent=wanted;body.classList.remove('typing');
+ }
 }
-
-function showSpeech(heading,text){if(state.videoActive)return;clearTimeout(state.speechHoldTimer);$['thinking-caption'].classList.remove('on');state.renderHeading=heading;state.renderBody=text;if(state.pendingRender)return;state.pendingRender=requestAnimationFrame(()=>{state.pendingRender=0;if(state.videoActive)return;const title=state.renderHeading||'Hologram AI',content=formatSpeech(state.renderBody),n=content.length;$['speech-heading'].textContent=title==='Hologram'?'HOLOGRAM AI':title;$['speech'].classList.toggle('title-only',!n);const body=$['speech-body'];body.classList.remove('big','medium','small','tiny');body.classList.add(n<=90?'big':n<=175?'medium':n<=360?'small':'tiny');if(!$['speech'].classList.contains('on')){state.typedText='';body.textContent='';}$['speech'].classList.add('on');$['orb-wrap'].classList.add('off');state.targetText=content;clearTimeout(state.hideOrbTimer);orb.setVisible(true);state.hideOrbTimer=setTimeout(()=>{if($['orb-wrap'].classList.contains('off'))orb.setVisible(false)},1300);if(!state.typingFrame)state.typingFrame=requestAnimationFrame(typeTick)})}
+function showSpeech(heading,text){
+ if(state.videoActive)return;
+ clearTimeout(state.speechHoldTimer);
+ state.renderHeading=heading;state.renderBody=text;
+ if(state.pendingRender)return;
+ const epoch=state.visualEpoch;
+ state.pendingRender=requestAnimationFrame(()=>{
+  state.pendingRender=0;
+  if(state.videoActive||epoch!==state.visualEpoch||state.visualPhase!=='speech')return;
+  const title=state.renderHeading||'Hologram AI',content=formatSpeech(state.renderBody),n=content.length;
+  const body=$['speech-body'],fresh=!$['speech'].classList.contains('on');
+  $['speech-heading'].textContent=title==='Hologram'?'HOLOGRAM AI':title;
+  $['speech'].classList.toggle('title-only',!n);
+  const next=pickSpeechSize(n),sizes=['big','medium','small','tiny'];
+  const prev=sizes.find(s=>body.classList.contains(s));
+  // Only reduce font size as text accumulates, avoiding repeated font-size oscillations.
+  if(fresh||!prev||sizes.indexOf(next)>sizes.indexOf(prev)){
+   body.classList.remove(...sizes);body.classList.add(next);
+  }
+  if(fresh){
+   state.typedText='';state.typingAt=0;
+   body.textContent='';body.classList.remove('window-shift');
+  }
+  state.targetText=content;
+  // Initial words exist before the entry transition, so the screen never opens empty.
+  if(fresh&&content){
+   state.typedText=revealWords(content,'',30);
+   body.textContent=state.typedText;
+   body.classList.add('typing');
+  }
+  $['thinking-caption'].classList.remove('on');
+  $['orb-wrap'].classList.add('off');
+  $['speech'].classList.add('on');
+  clearTimeout(state.hideOrbTimer);orb.setVisible(true);
+  state.hideOrbTimer=setTimeout(()=>{
+   if(epoch===state.visualEpoch&&$['orb-wrap'].classList.contains('off'))orb.setVisible(false);
+  },1150);
+  if(!state.typingFrame&&content&&state.typedText!==content)
+   state.typingFrame=requestAnimationFrame(typeTick);
+  else if(!content)body.classList.remove('typing');
+ });
+}
 /* Orb Canvas2D only: capped DPR, no shader, pause behind overlays and in hidden tab. */
 const orb={ctx:null,w:570,h:570,quality:prefs.quality,status:'idle',visible:true,raf:0,last:0,smooth:0,levelIn:0,levelOut:0,particles:[],lastFps:0,frames:0,thinkMix:0,
  init(){this.ctx=$['orb'].getContext('2d',{alpha:true});for(let i=0;i<172;i++)this.particles.push({a:Math.random()*6.283,r:.08+Math.random()*1.17,s:.085+Math.random()*.33,z:.35+Math.random()*1.5,o:.09+Math.random()*.39,tilt:Math.random()*6.28,phase:Math.random()*6.28});this.resize();this.setVisible(true)},
@@ -424,10 +509,10 @@ function handleInputTranscript(t){
  state.turnInput=mergeTranscript(state.turnInput,t);
  const cmd=parseMediaCommand(state.turnInput);
  if(cmd){scheduleMedia(cmd);return}
- if(state.connected){
-  // Repeated partial transcripts update the caption but don't restart the morph timer.
-  beginThinkingVisual(state.turnInput.slice(-175));
-  if(!aiSpeaking())setStatus('thinking');
+ if(state.connected&&!aiSpeaking()){
+  // Keep caption stable; streaming fragments must not reflow the scene.
+  beginThinkingVisual();
+  setStatus('thinking');
  }
 }
 
@@ -439,8 +524,9 @@ async function handleLiveMessage(msg,epoch,connectId){
  const sc=msg.serverContent;
  if(sc?.interrupted){
   audio.cancel();state.turnOutput='';
-  showOrb();
+  showOrb(); // Stop audio instantly; the DOM exits through its transition.
   if(state.connected)setStatus('listening');
+  return; // Ignore stale chunks carried by the interruption event.
  }
  const interim=sc?.interimInputTranscription?.text;
  if(interim){const earlyCommand=parseMediaCommand(interim);if(earlyCommand)scheduleMedia(earlyCommand)}
@@ -486,13 +572,58 @@ const video={player:null,ready:false,apiPromise:null,desiredId:'',pendingEpoch:0
  stop(){this.desiredId='';try{this.player?.stopVideo?.()}catch{}}
 };
 async function openVideo(query){query=String(query||'').trim();if(!query){toast('Nhập chủ đề video cần tìm.');return null}const key=getYoutubeKey();if(!key){toast('Chưa có YouTube Data API Key; vào Cài đặt để nhập.');return null}const epoch=++state.videoEpoch;state.videoAbort?.abort();const ctrl=new AbortController();state.videoAbort=ctrl;toast('Đang tìm video: '+query,1700);
- try{const params=new URLSearchParams({part:'snippet',type:'video',videoEmbeddable:'true',safeSearch:'moderate',maxResults:'5',q:query,key});const response=await fetch('https://www.googleapis.com/youtube/v3/search?'+params,{signal:ctrl.signal,cache:'no-store'});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(youtubeApiError(data,response.status));if(epoch!==state.videoEpoch)return null;const item=(data.items||[]).find(v=>v.id?.videoId);if(!item)throw new Error('Không tìm được video có thể nhúng.');const result={videoId:item.id.videoId,title:item.snippet?.title||query};state.videoActive=true;state.videoTitle=result.title;$['video-layer'].classList.add('active');$['video-layer'].setAttribute('aria-hidden','false');$['video-title'].textContent=result.title;$['video-status'].textContent='Đang tải trình phát…';orb.setVisible(false);const okay=await video.play(result,epoch);if(!okay)return null;return result
+ try{const params=new URLSearchParams({part:'snippet',type:'video',videoEmbeddable:'true',safeSearch:'moderate',maxResults:'5',q:query,key});const response=await fetch('https://www.googleapis.com/youtube/v3/search?'+params,{signal:ctrl.signal,cache:'no-store'});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(youtubeApiError(data,response.status));if(epoch!==state.videoEpoch)return null;const item=(data.items||[]).find(v=>v.id?.videoId);if(!item)throw new Error('Không tìm được video có thể nhúng.');const result={videoId:item.id.videoId,title:item.snippet?.title||query};state.videoActive=true;state.videoTitle=result.title;$['video-layer'].inert=false;$['video-layer'].classList.add('active');$['video-layer'].setAttribute('aria-hidden','false');$['video-title'].textContent=result.title;$['video-status'].textContent='Đang tải trình phát…';orb.setVisible(false);const okay=await video.play(result,epoch);if(!okay)return null;return result
  }catch(e){if(epoch===state.videoEpoch&&e?.name!=='AbortError'){toast(errorText(e,'youtube'),6500);closeVideo()}return null}finally{if(epoch===state.videoEpoch)state.videoAbort=null}}
-function closeVideo(){state.videoEpoch++;state.videoAbort?.abort();state.videoAbort=null;video.stop();state.videoActive=false;state.videoTitle='';$['video-layer'].classList.remove('active');$['video-layer'].setAttribute('aria-hidden','true');$['video-title'].textContent='';$['video-status'].textContent='';if(!state.settingsOpen)showOrb()}
+function closeVideo(){state.videoEpoch++;state.videoAbort?.abort();state.videoAbort=null;video.stop();state.videoActive=false;state.videoTitle='';$['video-layer'].classList.remove('active');$['video-layer'].inert=true;$['video-layer'].setAttribute('aria-hidden','true');$['video-title'].textContent='';$['video-status'].textContent='';if(!state.settingsOpen)showOrb()}
 function videoPause(){try{video.player?.pauseVideo?.()}catch(e){toast(errorText(e,'youtube'))}}
 function videoResume(){try{video.player?.playVideo?.()}catch(e){toast(errorText(e,'youtube'))}}
-function openSettings(){if(aiSpeaking()){toast('AI đang nói. Chỉ có thể mở cài đặt sau khi AI kết thúc hoặc khi bạn dừng AI.');return false}if(state.settingsOpen)return true;state.settingsOpen=true;writeInputs();$['settings'].hidden=false;$['overlay'].hidden=false;orb.setVisible(false);void refreshDevices();$['gemini-key'].focus();return true}
-function closeSettings(focusBack=true){state.settingsOpen=false;$['settings'].hidden=true;$['overlay'].hidden=true;if(!state.videoActive&&!$['speech'].classList.contains('on'))orb.setVisible(true);if(focusBack&&!$['btn-settings'].disabled)$['btn-settings'].focus()}
+function openSettings(){
+ if(aiSpeaking()){toast('AI đang nói. Chỉ có thể mở cài đặt sau khi AI kết thúc hoặc khi bạn dừng AI.');return false}
+ if(state.settingsOpen)return true;
+ state.settingsOpen=true;state.settingsToken++;
+ clearTimeout(state.settingsExitTimer);cancelAnimationFrame(state.settingsEnterFrame);
+ writeInputs();
+ $['settings'].hidden=false;$['overlay'].hidden=false;
+ $['settings'].inert=false;$['overlay'].inert=false;
+ $['settings'].setAttribute('aria-hidden','false');
+ // Let initial opacity/transform 0 reach layout before entering.
+ void $['settings'].offsetWidth;
+ state.settingsEnterFrame=requestAnimationFrame(()=>{
+  state.settingsEnterFrame=0;if(!state.settingsOpen)return;
+  $['settings'].classList.add('is-open');$['overlay'].classList.add('is-open');
+ });
+ orb.setVisible(false);void refreshDevices();$['gemini-key'].focus();return true;
+}
+function closeSettings(focusBack=true){
+ if(!state.settingsOpen&&$['settings'].hidden)return;
+ state.settingsOpen=false;state.settingsToken++;
+ cancelAnimationFrame(state.settingsEnterFrame);state.settingsEnterFrame=0;
+ $['settings'].classList.remove('is-open');$['overlay'].classList.remove('is-open');
+ $['settings'].inert=true;$['overlay'].inert=true;
+ $['settings'].setAttribute('aria-hidden','true');
+ clearTimeout(state.settingsExitTimer);
+ const token=state.settingsToken;
+ state.settingsExitTimer=setTimeout(()=>{
+  if(token!==state.settingsToken||state.settingsOpen)return;
+  $['settings'].hidden=true;$['overlay'].hidden=true;
+ },630);
+ if(!state.videoActive&&!$['speech'].classList.contains('on'))orb.setVisible(true);
+ if(focusBack&&!$['btn-settings'].disabled)$['btn-settings'].focus();
+}
+function toggleQuickText(force){
+ const form=$['quick-text'];
+ const open=force===undefined?form.hidden||!form.classList.contains('is-open'):!!force;
+ state.quickToken++;clearTimeout(state.quickExitTimer);cancelAnimationFrame(state.quickEnterFrame);
+ if(open){
+  form.hidden=false;form.inert=false;void form.offsetWidth;
+  state.quickEnterFrame=requestAnimationFrame(()=>{if(!form.hidden)form.classList.add('is-open')});
+  $['quick-input'].focus();
+ }else{
+  form.classList.remove('is-open');form.inert=true;
+  const token=state.quickToken;
+  state.quickExitTimer=setTimeout(()=>{if(state.quickToken===token)form.hidden=true},480);
+ }
+}
 function writeInputs(){$['gemini-key'].value=safeStore.get(sessionStorage,'hologram_gemini_key_session')||'';$['youtube-key'].value=safeStore.get(sessionStorage,'hologram_youtube_key_session')||'';$['model-id'].value=prefs.model;$['voice-name'].value=prefs.voice;$['personality'].value=prefs.personality;$['instruction'].value=prefs.instructions;$['mirror-mode'].value=prefs.mirror;$['quality'].value=prefs.quality;$['low-motion'].checked=prefs.lowMotion;$['show-fps'].checked=prefs.showFPS;$['volume'].value=prefs.volume;$['volume-label'].textContent=prefs.volume+'%'}
 function saveSettings(){if(aiSpeaking()){toast('Không thể thay đổi cấu hình API khi AI đang nói.');return}const previous={model:prefs.model,voice:prefs.voice,instructions:prefs.instructions,personality:prefs.personality,inputDevice:prefs.inputDevice};const oldKey=safeStore.get(sessionStorage,'hologram_gemini_key_session')||'';const newKey=$['gemini-key'].value.trim();safeStore.set(sessionStorage,'hologram_gemini_key_session',newKey);safeStore.set(sessionStorage,'hologram_youtube_key_session',$['youtube-key'].value.trim());Object.assign(prefs,{model:$['model-id'].value.trim()||MODEL_DEFAULT,voice:$['voice-name'].value,personality:$['personality'].value,instructions:$['instruction'].value.slice(0,5000),mirror:$['mirror-mode'].value,quality:$['quality'].value,lowMotion:$['low-motion'].checked,showFPS:$['show-fps'].checked,volume:Number($['volume'].value),inputDevice:$['input-device'].value,outputDevice:$['output-device'].value});safeStore.set(localStorage,STORAGE_PREF,JSON.stringify(prefs));applyPrefs();orb.resize();closeSettings();const changed=oldKey!==newKey||Object.keys(previous).some(k=>previous[k]!==prefs[k]);if(changed&&state.desired)stopAll('Đã cập nhật cấu hình AI. Bấm mic để kết nối lại.');else if(state.desired&&audio.ctx)void audio.setOutput(prefs.outputDevice).catch(e=>toast(errorText(e)));toast('Đã lưu cài đặt.')}
 async function refreshDevices(){if(!navigator.mediaDevices?.enumerateDevices)return;try{const items=await navigator.mediaDevices.enumerateDevices();for(const [select,kind,desired] of [[$['input-device'],'audioinput',prefs.inputDevice],[$['output-device'],'audiooutput',prefs.outputDevice]]){const previous=select.value||desired;select.replaceChildren(new Option('Mặc định hệ thống',''));let index=1;for(const d of items.filter(v=>v.kind===kind))select.add(new Option(d.label||`${kind==='audioinput'?'Micro':'Loa'} ${index++}`,d.deviceId));select.value=Array.from(select.options).some(o=>o.value===previous)?previous:''}if(!audio.ctx?.setSinkId)$['output-device'].title='Chỉ hoạt động khi AudioContext.setSinkId được hỗ trợ';}catch(e){$['diagnostics'].textContent='Không liệt kê được thiết bị: '+errorText(e)}}
@@ -507,8 +638,8 @@ function bind(){
  guardedClick('btn-mute-mic',()=>{if(!state.desired)return;audio.setMicMuted(!state.micMuted);toast(state.micMuted?'Đã tắt tiếng micro.':'Micro đã bật lại.',1300)});
  guardedClick('btn-mute-ai',()=>{state.aiMuted=!state.aiMuted;audio.setVolume(prefs.volume/100);renderButtons();toast(state.aiMuted?'Đã tắt âm thanh AI.':'Đã bật âm thanh AI.',1200)});
  guardedClick('btn-video',()=>{if(openSettings())$['video-search-input'].focus()});
- guardedClick('btn-text',()=>{$['quick-text'].hidden=!$['quick-text'].hidden;if(!$['quick-text'].hidden)$['quick-input'].focus()});
- guardedClick('quick-close',()=>$['quick-text'].hidden=true);
+ guardedClick('btn-text',()=>toggleQuickText());
+ guardedClick('quick-close',()=>toggleQuickText(false));
  $['quick-text'].addEventListener('submit',e=>{e.preventDefault();const now=performance.now(),prev=state.buttonTick.get('quick-submit')??-Infinity;if(now-prev<550)return;state.buttonTick.set('quick-submit',now);const text=$['quick-input'].value.trim();if(!text)return;const cmd=parseMediaCommand(text);if(cmd){void executeMedia(cmd)}else if(state.session&&state.connected){try{state.session.sendRealtimeInput({text});beginThinkingVisual('Đã gửi: '+text.slice(0,140))}catch(err){toast(errorText(err))}}else toast('Hãy kết nối Gemini Live trước, hoặc nhập lệnh video.');$['quick-input'].value=''});
  guardedClick('btn-mirror',()=>{const modes=['vertical','horizontal','both','none'];prefs.mirror=modes[(modes.indexOf(prefs.mirror)+1)%modes.length];safeStore.set(localStorage,STORAGE_PREF,JSON.stringify(prefs));applyMirror();toast('Lật gương: '+({vertical:'ngang',horizontal:'dọc',both:'hai chiều',none:'tắt'}[prefs.mirror]),1000)});
  guardedClick('btn-settings',openSettings);guardedClick('cancel-settings',()=>closeSettings());$['overlay'].addEventListener('click',()=>closeSettings());guardedClick('save-settings',saveSettings,650);
@@ -518,7 +649,7 @@ function bind(){
  guardedClick('video-pause',videoPause,420);guardedClick('video-resume',videoResume,420);guardedClick('video-close',closeVideo,360);guardedClick('video-fullscreen',()=>{if(!$['video-layer'].requestFullscreen)return toast('Trình duyệt không hỗ trợ toàn màn hình.');$['video-layer'].requestFullscreen().catch(e=>toast(errorText(e)))});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)orb.setVisible(false);else if(!state.settingsOpen&&!state.videoActive&&!$['speech'].classList.contains('on'))orb.setVisible(true)});
  navigator.mediaDevices?.addEventListener?.('devicechange',()=>{if(state.settingsOpen)void refreshDevices()});
- window.addEventListener('keydown',e=>{const typing=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);if(e.key==='Escape'&&!e.repeat){if(state.settingsOpen)closeSettings();else if(state.videoActive)closeVideo();else if(state.desired)stopAll();else $['quick-text'].hidden=true}if(e.code==='Space'&&!e.repeat&&!typing&&document.activeElement===document.body){e.preventDefault();const now=performance.now(),prev=state.buttonTick.get('space-shortcut')??-Infinity;if(now-prev>=550){state.buttonTick.set('space-shortcut',now);state.desired?stopAll():void start()}}});
+ window.addEventListener('keydown',e=>{const typing=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);if(e.key==='Escape'&&!e.repeat){if(state.settingsOpen)closeSettings();else if(state.videoActive)closeVideo();else if(state.desired)stopAll();else toggleQuickText(false)}if(e.code==='Space'&&!e.repeat&&!typing&&document.activeElement===document.body){e.preventDefault();const now=performance.now(),prev=state.buttonTick.get('space-shortcut')??-Infinity;if(now-prev>=550){state.buttonTick.set('space-shortcut',now);state.desired?stopAll():void start()}}});
  window.addEventListener('pagehide',()=>stopAll());
 }
 scaleStage();orb.init();applyPrefs();writeInputs();renderButtons();setStatus('idle');bind();
