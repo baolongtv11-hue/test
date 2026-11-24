@@ -134,17 +134,17 @@ html.low-motion #toolbar .iconbtn{backdrop-filter:none;-webkit-backdrop-filter:n
 /* CINEMATIC MOTION v3: unified duration/easing; overlaps instead of hard cuts. */
 :root{--motion-in:860ms;--motion-out:670ms;--motion-surface:470ms;--motion-glide:cubic-bezier(.18,.78,.2,1);--motion-settle:cubic-bezier(.22,1,.36,1)}
 #scene-inner{perspective:1100px;transform-style:preserve-3d}
-#orb-wrap{transition:opacity var(--motion-out) var(--motion-glide),transform 1050ms var(--motion-settle);transform-origin:center;will-change:opacity,transform}
-#orb-wrap.off{opacity:0;transform:translate3d(0,-22px,-170px) scale(.62)}
-#speech{filter:none!important;opacity:0;transform:translate3d(0,37px,-90px) scale(.963);transition:opacity var(--motion-in) var(--motion-glide),transform 1080ms var(--motion-settle);backface-visibility:hidden}
-#speech.on{opacity:1;transform:translate3d(0,0,0) scale(1)}
+#orb-wrap{transition:opacity var(--motion-out) var(--motion-glide),transform 1050ms var(--motion-settle);transform-origin:center;will-change:opacity,transform;transform:translate3d(0,0,0) scale(1) scale3d(var(--mirror-x,1),var(--mirror-y,1),1)}
+#orb-wrap.off{opacity:0;transform:translate3d(0,-22px,-170px) scale(.62) scale3d(var(--mirror-x,1),var(--mirror-y,1),1)}
+#speech{filter:none!important;opacity:0;transform:translate3d(0,37px,-90px) scale(.963) scale3d(var(--mirror-x,1),var(--mirror-y,1),1);transition:opacity var(--motion-in) var(--motion-glide),transform 1080ms var(--motion-settle);backface-visibility:hidden}
+#speech.on{opacity:1;transform:translate3d(0,0,0) scale(1) scale3d(var(--mirror-x,1),var(--mirror-y,1),1)}
 #speech .anim{filter:none!important;opacity:0;transform:translate3d(0,22px,0) scale(.988);animation:none!important;transition:opacity 680ms var(--motion-glide),transform 860ms var(--motion-settle);transition-delay:0ms}
 #speech.on .anim{opacity:1;transform:translate3d(0,0,0) scale(1);transition-delay:calc(110ms + var(--d,0)*100ms)}
 #speech-body{text-wrap:wrap!important;overflow-wrap:anywhere;hyphens:none;transition:font-size 620ms var(--motion-glide),line-height 620ms var(--motion-glide);font-kerning:normal}
 #speech-body.window-shift{animation:textWindowSoft 390ms var(--motion-settle) both}
 @keyframes textWindowSoft{0%{opacity:.62;transform:translate3d(0,9px,0)}100%{opacity:1;transform:translate3d(0,0,0)}}
-#thinking-caption{transition:opacity 520ms var(--motion-glide),transform 760ms var(--motion-settle);filter:none!important;opacity:0;transform:translate3d(0,16px,0)}
-#thinking-caption.on{opacity:1;transform:translate3d(0,0,0)}
+#thinking-caption{transition:opacity 520ms var(--motion-glide),transform 760ms var(--motion-settle);filter:none!important;opacity:0;transform:translate3d(0,16px,0) scale3d(var(--mirror-x,1),var(--mirror-y,1),1)}
+#thinking-caption.on{opacity:1;transform:translate3d(0,0,0) scale3d(var(--mirror-x,1),var(--mirror-y,1),1)}
 /* Video stays mounted during exit. Visibility is delayed until opacity reaches zero. */
 #video-layer{display:block!important;visibility:hidden;opacity:0;transform:translate3d(0,16px,0) scale(1.014);pointer-events:none;transition:opacity 590ms var(--motion-glide),transform 780ms var(--motion-settle),visibility 0s linear 590ms;will-change:opacity,transform}
 #video-layer.active{display:block!important;visibility:visible;opacity:1;transform:translate3d(0,0,0) scale(1);pointer-events:auto;transition:opacity 620ms var(--motion-glide),transform 800ms var(--motion-settle),visibility 0s linear 0s}
@@ -438,7 +438,7 @@ function renderButtons(){
  // Emergency Stop must never be disabled, not even in a faded toolbar.
  $['btn-stop'].disabled=false;
 }
-function applyMirror(){const t={vertical:'scaleX(-1)',horizontal:'scaleY(-1)',both:'scale(-1,-1)',none:'none'};$['orb'].style.transform=t[prefs.mirror]||'none';$['btn-mirror'].classList.toggle('active',prefs.mirror!=='none')}
+function applyMirror(){const vars={vertical:{x:-1,y:1,label:'Lật ngang'},horizontal:{x:1,y:-1,label:'Lật dọc'},both:{x:-1,y:-1,label:'Lật hai chiều'},none:{x:1,y:1,label:'Không lật'}};const mode=vars[prefs.mirror]||vars.none;$['scene-inner'].style.setProperty('--mirror-x',String(mode.x));$['scene-inner'].style.setProperty('--mirror-y',String(mode.y));$['btn-mirror'].classList.toggle('active',prefs.mirror!=='none');$['btn-mirror'].setAttribute('aria-label','Đổi chế độ lật gương: '+mode.label)}
 function applyPrefs(){document.documentElement.classList.toggle('low-motion',!!prefs.lowMotion);$['performance'].hidden=!prefs.showFPS;orb.quality=prefs.quality;audio.setVolume(prefs.volume/100);applyMirror()}
 function showOrb(){
  if(state.videoActive)return;
