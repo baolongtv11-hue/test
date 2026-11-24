@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="description" content="Hologram Gemini Live, một HTML, Canvas 2D nhẹ, điều khiển video bằng giọng nói.">
-<title>Hologram AI · Aero Performance v5</title>
+<title>Hologram AI · Aero Performance v6 — Complete Speech</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#050608;--card:#14171b;--line:#414044;--gold:#e1c28a;--goldsoft:#fff0cc;--white:#f9f8f3;--muted:#a8aab0;--blue:#7aafff;--green:#58cca0;--red:#ff7487;--shadow:0 12px 38px rgba(0,0,0,.4)}
@@ -267,6 +267,20 @@ html.mobile-portrait .offline-item .offline-title{font-size:20px}
 html.mobile-portrait .offline-item button{font-size:18px;min-height:56px;padding:8px 12px}
 html.presentation-fit #app{box-shadow:none!important}
 @media(prefers-reduced-motion:reduce){#mobile-fullscreen{transition-duration:.12s!important}}
+
+#app{left:var(--stage-center-x,50%)!important;top:var(--stage-center-y,50%)!important}
+/* Avoid an unintended elliptical orb on launch: scaleX(1) → scaleX(-1) interpolation passes through zero width. */
+#orb{transition:none!important}
+/* v6: move FPS away from creator credits; keep both readable and non-overlapping. */
+#performance{left:auto!important;bottom:auto!important;right:48px!important;top:17px!important;font-size:11px;max-width:250px;text-align:right}
+#creator-credit{max-width:600px;left:52px;bottom:33px;font-size:13px;line-height:1.48;opacity:.9}
+#creator-credit span{font-size:11px;line-height:1.45}
+#speech-page{opacity:.64;color:var(--gold2);font:600 13px/1.3 'Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:.24em;min-height:17px;margin-top:5px;white-space:nowrap}
+html.mobile-portrait #performance{top:94px!important;right:46px!important;bottom:auto!important;left:auto!important;font-size:14px}
+html.mobile-landscape #performance{top:17px!important;right:32px!important;bottom:auto!important;left:auto!important}
+html.mobile-portrait #creator-credit{bottom:34px;font-size:16px}
+html.mobile-portrait #creator-credit span{font-size:14px}
+html.mobile-portrait #speech-page{font-size:20px}
 </style>
 </head>
 <body>
@@ -275,7 +289,7 @@ html.presentation-fit #app{box-shadow:none!important}
 <div id="progress" aria-hidden="true"></div>
 <header id="topbar"><span class="brand anim" style="--d:0">HOLOGRAM AI</span><span id="state-display" class="state" data-status="idle" role="status" aria-live="polite"><span class="dot"></span><span id="state-label">Chờ kết nối</span></span></header>
 <div id="creator-credit">Được tạo bởi Nhóm 6 · Trường THCS Lê Quý Đôn <span>Người sáng lập: Bùi Đào Bảo Long</span></div>
-<section id="scene" aria-label="Màn hình trình chiếu Hologram"><div id="scene-inner"><div id="orb-wrap"><canvas id="orb" aria-label="Quả cầu phản ứng theo âm thanh" role="img"></canvas></div><div id="thinking-caption" aria-live="polite"></div><div id="speech" aria-live="polite"><h1 id="speech-heading" class="anim" style="--d:0">Hologram AI</h1><div id="speech-body" class="anim" style="--d:1"></div></div></div></section>
+<section id="scene" aria-label="Màn hình trình chiếu Hologram"><div id="scene-inner"><div id="orb-wrap"><canvas id="orb" aria-label="Quả cầu phản ứng theo âm thanh" role="img"></canvas></div><div id="thinking-caption" aria-live="polite"></div><div id="speech" aria-live="polite"><h1 id="speech-heading" class="anim" style="--d:0">Hologram AI</h1><div id="speech-body" class="anim" style="--d:1"></div><div id="speech-page" aria-hidden="true"></div></div></div></section>
 <section id="video-layer" aria-label="Trình phát video YouTube" aria-hidden="true"><div id="yt-host"><div id="yt-player"></div></div><video id="offline-player" playsinline webkit-playsinline controls preload="metadata" aria-label="Trình phát video offline"></video><div id="video-top"><span id="video-title"></span></div><div id="video-actions"><button id="video-pause" type="button">Tạm dừng</button><button id="video-resume" type="button">Tiếp tục</button><button id="video-fullscreen" type="button">Toàn màn hình</button><button id="video-close" type="button">Đóng video</button></div><div id="video-status" role="status">Đang tải video…</div></section>
 <nav id="toolbar" aria-label="Điều khiển Hologram">
 <button class="iconbtn" id="btn-mic" type="button" aria-label="Bắt đầu cuộc trò chuyện"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg><span class="tip">Bắt đầu / dừng micro</span></button>
@@ -345,24 +359,32 @@ const INPUT_RATE=16000, OUTPUT_RATE=24000, CHUNK_SAMPLES=640;
 const MODEL_DEFAULT='gemini-3.8-live';
 const STORAGE_PREF='hologram_unified_prefs_v1';
 const el=id=>document.getElementById(id);
-const $=Object.fromEntries(['progress','topbar','state-display','state-label','scene-inner','orb','orb-wrap','thinking-caption','speech','speech-heading','speech-body','toolbar','btn-mic','btn-mute-mic','btn-mute-ai','btn-video','btn-text','btn-mirror','btn-settings','btn-fullscreen','mobile-fullscreen','mobile-fullscreen-label','btn-stop','quick-text','quick-input','quick-close','video-confirm','video-confirm-heading','video-confirm-question','video-confirm-yes','video-confirm-no','video-layer','video-title','video-status','video-pause','video-resume','video-close','video-fullscreen','yt-player','offline-player','offline-file-input','offline-list','offline-empty','performance','settings','overlay','gemini-key','youtube-key','model-id','live-models','voice-name','personality','instruction','input-device','output-device','refresh-devices','volume','volume-label','mirror-mode','quality','low-motion','show-fps','diagnostics','discover-models','test-browser','video-search-input','search-video','cancel-settings','save-settings','toast'].map(id=>[id,el(id)]));
+const $=Object.fromEntries(['progress','topbar','state-display','state-label','scene-inner','orb','orb-wrap','thinking-caption','speech','speech-heading','speech-body','speech-page','toolbar','btn-mic','btn-mute-mic','btn-mute-ai','btn-video','btn-text','btn-mirror','btn-settings','btn-fullscreen','mobile-fullscreen','mobile-fullscreen-label','btn-stop','quick-text','quick-input','quick-close','video-confirm','video-confirm-heading','video-confirm-question','video-confirm-yes','video-confirm-no','video-layer','video-title','video-status','video-pause','video-resume','video-close','video-fullscreen','yt-player','offline-player','offline-file-input','offline-list','offline-empty','performance','settings','overlay','gemini-key','youtube-key','model-id','live-models','voice-name','personality','instruction','input-device','output-device','refresh-devices','volume','volume-label','mirror-mode','quality','low-motion','show-fps','diagnostics','discover-models','test-browser','video-search-input','search-video','cancel-settings','save-settings','toast'].map(id=>[id,el(id)]));
 const safeStore={get(storage,key){try{return storage.getItem(key)}catch{return null}},set(storage,key,value){try{storage.setItem(key,value)}catch{}}};
 const DEFAULT_PREFS={model:MODEL_DEFAULT,voice:'Aoede',personality:'concise',instructions:'',mirror:'vertical',quality:'balanced',lowMotion:true,showFPS:false,volume:100,inputDevice:'',outputDevice:''};
 function readPrefs(){try{return {...DEFAULT_PREFS,...JSON.parse(safeStore.get(localStorage,STORAGE_PREF)||'{}')}}catch{return {...DEFAULT_PREFS}}}
 const prefs=readPrefs();
 const MOBILE_DEVICE=matchMedia('(pointer:coarse)').matches&&Math.min(screen.width||innerWidth,screen.height||innerHeight)<900;
-const state={visualPhase:'orb',visualEpoch:0,visualReadyAt:0,visualTimer:0,queuedSpeechText:'',speechShownAt:0,thinkingCaptionShown:false,settingsExitTimer:0,settingsEnterFrame:0,settingsToken:0,speechPageAt:0,wordRevealAt:0,quickExitTimer:0,quickEnterFrame:0,quickToken:0,phase:'idle',buttonTick:new Map(),controlFadeTimer:0,controlsLastActive:-Infinity,typingFrame:0,typingAt:0,typedText:'',targetText:'',hideOrbTimer:0,speechHoldTimer:0,epoch:0,connectId:0,desired:false,connected:false,session:null,client:null,sdkPromise:null,startPromise:null,reconnectTimer:0,reconnectCount:0,micMuted:false,aiMuted:false,videoActive:false,videoEpoch:0,videoAbort:null,videoTitle:'',pendingMedia:null,commandTimer:0,lastCommand:null,turnInput:'',turnOutput:'',pendingRender:0,renderHeading:'',renderBody:'',toastTimer:0,settingsOpen:false,lastSendError:0,suppressAudioUntil:0,cancelledToolIds:new Set(),speechAudioAt:0,speechTimerDeadline:0,thinkingDuration:2500,thinkingStartedAt:0,hasAudioThisTurn:false,noAudioFallback:false,videoApproval:null,videoApprovalTimer:0,videoApprovalToken:0,authorizedVideo:null,adaptiveDraw:0,activeVideoKind:null,activeOfflineId:null,activeOfflineUrl:null,pseudoFullscreen:false};
+const state={visualPhase:'orb',visualEpoch:0,visualReadyAt:0,visualTimer:0,queuedSpeechText:'',speechShownAt:0,thinkingCaptionShown:false,settingsExitTimer:0,settingsEnterFrame:0,settingsToken:0,speechPageAt:0,wordRevealAt:0,quickExitTimer:0,quickEnterFrame:0,quickToken:0,phase:'idle',buttonTick:new Map(),controlFadeTimer:0,controlsLastActive:-Infinity,typingFrame:0,typingTimer:0,typingAt:0,typedText:'',targetText:'',speechPageStart:0,speechPageNumber:1,speechPlaybackFinished:false,speechRevealDoneAt:0,speechEndedAt:0,hideOrbTimer:0,speechHoldTimer:0,epoch:0,connectId:0,desired:false,connected:false,session:null,client:null,sdkPromise:null,startPromise:null,reconnectTimer:0,reconnectCount:0,micMuted:false,aiMuted:false,videoActive:false,videoEpoch:0,videoAbort:null,videoTitle:'',pendingMedia:null,commandTimer:0,lastCommand:null,turnInput:'',turnOutput:'',pendingRender:0,renderHeading:'',renderBody:'',toastTimer:0,settingsOpen:false,lastSendError:0,suppressAudioUntil:0,cancelledToolIds:new Set(),speechAudioAt:0,speechTimerDeadline:0,thinkingDuration:2500,thinkingStartedAt:0,hasAudioThisTurn:false,noAudioFallback:false,videoApproval:null,videoApprovalTimer:0,videoApprovalToken:0,authorizedVideo:null,adaptiveDraw:0,activeVideoKind:null,activeOfflineId:null,activeOfflineUrl:null,pseudoFullscreen:false};
 const offlineLibrary=new Map();let offlineSerial=0;
 const STATUS={idle:['Chờ kết nối',0],connecting:['Đang kết nối…',22],listening:['Đang lắng nghe',38],thinking:['Đang xử lý',68],speaking:['AI đang nói',100],error:['Có lỗi',100]};
 function scaleStage(){
- const portrait=MOBILE_DEVICE&&innerHeight>innerWidth;
+ // On some mobile WebViews, large transformed children inflate innerWidth/innerHeight.
+ // The actual visible viewport is the reliable source for both scaling and centering.
+ const vv=window.visualViewport;
+ const vw=Math.max(1,vv?.width||document.documentElement.clientWidth||innerWidth);
+ const vh=Math.max(1,vv?.height||document.documentElement.clientHeight||innerHeight);
+ const portrait=MOBILE_DEVICE&&vh>vw;
  document.documentElement.classList.toggle('mobile-portrait',portrait);
  document.documentElement.classList.toggle('mobile-landscape',MOBILE_DEVICE&&!portrait);
  document.documentElement.classList.toggle('mobile-device',MOBILE_DEVICE);
  const w=portrait?720:1280,h=portrait?1280:720;
- const scale=Math.min(innerWidth/w,innerHeight/h);
- document.documentElement.style.setProperty('--stage-w',w+'px');document.documentElement.style.setProperty('--stage-h',h+'px');
+ const scale=Math.min(vw/w,vh/h);
+ document.documentElement.style.setProperty('--stage-w',w+'px');
+ document.documentElement.style.setProperty('--stage-h',h+'px');
  document.documentElement.style.setProperty('--stage-scale',Math.max(.01,scale));
+ document.documentElement.style.setProperty('--stage-center-x',((vv?.offsetLeft||0)+vw/2)+'px');
+ document.documentElement.style.setProperty('--stage-center-y',((vv?.offsetTop||0)+vh/2)+'px');
  if(orb.ctx)orb.resize();
 }
 let resizeFrame=0;
@@ -421,10 +443,11 @@ function applyPrefs(){document.documentElement.classList.toggle('low-motion',!!p
 function showOrb(){
  if(state.videoActive)return;
  clearTimeout(state.visualTimer);state.visualTimer=0;state.visualEpoch++;
- state.visualPhase='orb';state.queuedSpeechText='';state.thinkingCaptionShown=false;state.speechAudioAt=0;state.speechTimerDeadline=0;state.hasAudioThisTurn=false;state.noAudioFallback=false;
- clearTimeout(state.speechHoldTimer);clearTimeout(state.hideOrbTimer);
+ state.visualPhase='orb';state.queuedSpeechText='';state.thinkingCaptionShown=false;state.speechAudioAt=0;state.speechTimerDeadline=0;state.hasAudioThisTurn=false;state.noAudioFallback=false;state.speechPlaybackFinished=false;state.speechRevealDoneAt=0;state.speechEndedAt=0;state.speechPageStart=0;state.speechPageNumber=1;state.typedText='';state.targetText='';
+ clearTimeout(state.speechHoldTimer);clearTimeout(state.hideOrbTimer);clearTimeout(state.typingTimer);state.typingTimer=0;
  if(state.pendingRender){cancelAnimationFrame(state.pendingRender);state.pendingRender=0}
  if(state.typingFrame){cancelAnimationFrame(state.typingFrame);state.typingFrame=0}
+ if($['speech-page'])$['speech-page'].textContent='';
  $['thinking-caption'].classList.remove('on');
  $['speech'].classList.remove('on');
  $['speech-body'].classList.remove('typing','window-shift');
@@ -481,7 +504,9 @@ function prepareThinkingFromText(text){
   state.visualReadyAt=Math.max(state.visualReadyAt,state.thinkingStartedAt+state.thinkingDuration);
  }
 }
-function formatSpeech(text){return String(text||'').replace(/\s*\n\s*/g,' ').replace(/\s{2,}/g,' ').trim().slice(-560)}
+/* Never truncate Gemini's transcript: the screen shows every word through readable pages.
+   A complete reply is retained in targetText throughout the turn. */
+function formatSpeech(text){return String(text||'').replace(/\s*\n\s*/g,' ').replace(/\s{2,}/g,' ').trim()}
 function pickSpeechSize(n){return n<=90?'big':n<=175?'medium':n<=360?'small':'tiny'}
 function revealWords(wanted,current,maxChars=34){
  if(!wanted.startsWith(current))return wanted.slice(0,Math.min(wanted.length,maxChars));
@@ -490,36 +515,72 @@ function revealWords(wanted,current,maxChars=34){
  let k=rest.lastIndexOf(' ',maxChars);if(k<Math.ceil(maxChars/2))k=Math.min(rest.length,maxChars);
  else k++;return current+rest.slice(0,k);
 }
+/* Time-throttled updates: do not stop polling when currently caught up with the audio.
+   A single 110ms timeout is cheaper than a permanent 60 FPS text RAF. */
+function scheduleTypeTick(delay=0){
+ if(state.typingFrame||state.typingTimer||state.videoActive||!$['speech'].classList.contains('on'))return;
+ if(delay>0)state.typingTimer=setTimeout(()=>{state.typingTimer=0;state.typingFrame=requestAnimationFrame(typeTick)},delay);
+ else state.typingFrame=requestAnimationFrame(typeTick);
+}
+function speechPageLimit(){return document.documentElement.classList.contains('mobile-portrait')?190:MOBILE_DEVICE?235:325}
+function renderSpeechPage(whole){
+ const body=$['speech-body'],limit=speechPageLimit();let switched=false;
+ // Move exactly once at a word boundary. Every prior word was visible on the preceding page.
+ if(whole.length-state.speechPageStart>limit){
+  const cut=whole.lastIndexOf(' ',state.speechPageStart+limit);
+  const next=cut>state.speechPageStart+Math.floor(limit*.6)?cut+1:state.speechPageStart+limit;
+  state.speechPageStart=next;state.speechPageNumber++;switched=true;
+ }
+ body.textContent=whole.slice(state.speechPageStart);
+ $['speech-page'].textContent=state.speechPageNumber>1?'TRANG '+state.speechPageNumber:'';
+ if(switched&&typeof body.animate==='function'&&!prefs.lowMotion){
+  body.getAnimations?.().filter(a=>a.id==='hologram-page-turn').forEach(a=>a.cancel());
+  const a=body.animate([{opacity:.4,transform:'translate3d(0,12px,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:410,easing:'cubic-bezier(.22,1,.36,1)'});a.id='hologram-page-turn';
+ }
+}
+function scheduleSpeechExit(){
+ clearTimeout(state.speechHoldTimer);state.speechHoldTimer=0;
+ if(!state.speechPlaybackFinished||state.videoActive||!state.desired||!state.connected)return;
+ if(state.visualPhase!=='speech'){
+  // Short voice turns can end before the presentation thinking gate expires.
+  if(state.visualPhase==='thinking')state.speechHoldTimer=setTimeout(scheduleSpeechExit,240);
+  return;
+ }
+ if(state.typedText.length<state.targetText.length){scheduleTypeTick(0);return}
+ const now=performance.now();
+ const hold=Math.max(1300,state.speechShownAt+2500-now,state.speechRevealDoneAt+1700-now);
+ const epoch=state.visualEpoch;
+ state.speechHoldTimer=setTimeout(()=>{
+  state.speechHoldTimer=0;
+  if(epoch===state.visualEpoch&&state.speechPlaybackFinished&&state.typedText.length>=state.targetText.length&&!state.videoActive&&(state.phase==='listening'||state.phase==='idle'))showOrb();
+ },hold);
+}
 function typeTick(t){
  state.typingFrame=0;
- if(!$['speech'].classList.contains('on')||state.videoActive)return;
- if(t-state.typingAt<(MOBILE_DEVICE?145:115)){state.typingFrame=requestAnimationFrame(typeTick);return}
+ if(!$['speech'].classList.contains('on')||state.videoActive||state.visualPhase!=='speech')return;
+ const interval=MOBILE_DEVICE?145:115;
+ if(t-state.typingAt<interval){scheduleTypeTick(Math.max(35,interval-(t-state.typingAt)));return}
  state.typingAt=t;
  const fullText=state.targetText,body=$['speech-body'];
- // Approximate speech-aligned reveal: first text >=450ms after sound, then
- // cap the visible character count near natural Vietnamese speaking cadence.
  const elapsed=state.speechAudioAt?Math.max(0,performance.now()-state.speechAudioAt-450):Infinity;
- const maxVisible=Number.isFinite(elapsed)?Math.floor(14+elapsed*.019):fullText.length;
- const wanted=fullText.slice(0,Math.min(fullText.length,maxVisible));
+ const maxVisible=state.speechPlaybackFinished?fullText.length:(state.speechAudioAt?Math.floor(14+elapsed*.019):fullText.length);
+ const wanted=fullText.slice(0,Math.min(fullText.length,Math.max(0,maxVisible)));
  if(!wanted.startsWith(state.typedText)){
-  const old=state.typedText,anchor=wanted.slice(0,Math.min(28,wanted.length));
-  const overlap=anchor?old.indexOf(anchor):-1;
-  state.typedText=overlap>=0?old.slice(overlap):'';
-  // A long transcript may scroll its window: give the shifted page a soft fade.
-  body.classList.remove('window-shift');
-  if(typeof body.animate==='function'&&!prefs.lowMotion){
-   body.getAnimations?.().filter(a=>a.id==='hologram-window-shift').forEach(a=>a.cancel());
-   const anim=body.animate([{opacity:.66,transform:'translate3d(0,9px,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:390,easing:'cubic-bezier(.22,1,.36,1)'});
-   anim.id='hologram-window-shift';
-  }
+  // Some Live models resend a corrected cumulative transcription; start the corrected text cleanly.
+  state.typedText='';state.speechPageStart=0;state.speechPageNumber=1;
  }
  if(state.typedText.length<wanted.length){
   state.typedText=revealWords(wanted,state.typedText,Math.min(26,Math.max(10,Math.ceil((wanted.length-state.typedText.length)*.07))));
-  body.textContent=state.typedText;
-  body.classList.add('typing');
-  state.typingFrame=requestAnimationFrame(typeTick);
+  renderSpeechPage(state.typedText);body.classList.add('typing');
+ }else if(state.typedText.length>=fullText.length){
+  renderSpeechPage(state.typedText);body.classList.remove('typing');
+ }
+ if(state.typedText.length<fullText.length){
+  // Keep the clock alive even if transcript and audio quota are temporarily equal.
+  scheduleTypeTick(state.typedText.length>=wanted.length?110:interval);
  }else{
-  body.textContent=wanted;body.classList.remove('typing');
+  state.speechRevealDoneAt=performance.now();body.classList.remove('typing');
+  if(state.speechPlaybackFinished)scheduleSpeechExit();
  }
 }
 function showSpeech(heading,text){
@@ -531,7 +592,7 @@ function showSpeech(heading,text){
  state.pendingRender=requestAnimationFrame(()=>{
   state.pendingRender=0;
   if(state.videoActive||epoch!==state.visualEpoch||state.visualPhase!=='speech')return;
-  const title=state.renderHeading||'Hologram AI',content=formatSpeech(state.renderBody),n=content.length;
+  const title=state.renderHeading||'Hologram AI',content=formatSpeech(state.renderBody),n=Math.min(content.length,speechPageLimit());
   const body=$['speech-body'],fresh=!$['speech'].classList.contains('on');
   $['speech-heading'].textContent=title==='Hologram'?'HOLOGRAM AI':title;
   $['speech'].classList.toggle('title-only',!n);
@@ -542,14 +603,14 @@ function showSpeech(heading,text){
    body.classList.remove(...sizes);body.classList.add(next);
   }
   if(fresh){
-   state.typedText='';state.typingAt=0;
-   body.textContent='';body.classList.remove('window-shift');
+   state.typedText='';state.typingAt=0;state.speechPageStart=0;state.speechPageNumber=1;
+   body.textContent='';body.classList.remove('window-shift');$['speech-page'].textContent='';
   }
   state.targetText=content;
   // Initial words exist before the entry transition, so the screen never opens empty.
   if(fresh&&content){
    state.typedText=revealWords(content,'',16);
-   body.textContent=state.typedText;
+   renderSpeechPage(state.typedText);
    body.classList.add('typing');
   }
   $['thinking-caption'].classList.remove('on');
@@ -559,16 +620,16 @@ function showSpeech(heading,text){
   state.hideOrbTimer=setTimeout(()=>{
    if(epoch===state.visualEpoch&&$['orb-wrap'].classList.contains('off'))orb.setVisible(false);
   },1150);
-  if(!state.typingFrame&&content&&state.typedText!==content)
-   state.typingFrame=requestAnimationFrame(typeTick);
+  if(content&&state.typedText!==content)scheduleTypeTick();
   else if(!content)body.classList.remove('typing');
+  else if(state.speechPlaybackFinished)scheduleSpeechExit();
  });
 }
 /* Orb Canvas2D only: capped DPR, no shader, pause behind overlays and in hidden tab. */
 const orb={ctx:null,w:570,h:570,quality:prefs.quality,status:'idle',visible:true,raf:0,last:0,smooth:0,levelIn:0,levelOut:0,particles:[],lastFps:0,frames:0,thinkMix:0,adaptiveDraw:0,renderCost:0,
  init(){this.ctx=$['orb'].getContext('2d',{alpha:true});for(let i=0;i<172;i++)this.particles.push({a:Math.random()*6.283,r:.08+Math.random()*1.17,s:.085+Math.random()*.33,z:.35+Math.random()*1.5,o:.09+Math.random()*.39,tilt:Math.random()*6.28,phase:Math.random()*6.28});this.resize();this.setVisible(true)},
  resize(){const sz=Math.max(50,$['orb'].clientWidth||570),w=document.documentElement.classList.contains('mobile-portrait')?720:1280,h=document.documentElement.classList.contains('mobile-portrait')?1280:720;
-  const scale=Math.min(innerWidth/w,innerHeight/h),cap=MOBILE_DEVICE?1.12:(this.quality==='eco'?1.35:1.55),dpr=Math.min(Math.max(.58,(devicePixelRatio||1)*scale),cap);
+  const vw=window.visualViewport?.width||innerWidth,vh=window.visualViewport?.height||innerHeight;const scale=Math.min(vw/w,vh/h),cap=MOBILE_DEVICE?1.12:(this.quality==='eco'?1.35:1.55),dpr=Math.min(Math.max(.58,(devicePixelRatio||1)*scale),cap);
   const pixels=Math.round(sz*dpr);this.w=sz;this.h=sz;
   if($['orb'].width!==pixels||$['orb'].height!==pixels){$['orb'].width=pixels;$['orb'].height=pixels;this.ctx.setTransform(dpr,0,0,dpr,0,0)}
  },
@@ -648,6 +709,12 @@ KHI ĐƯỢC HỎI "AI TẠO RA BẠN?", "AI LẬP TRÌNH BẠN?", "BẠN CỦA 
 MỤC TIÊU
 Giúp người dùng tìm hiểu, giải thích, giải quyết vấn đề, học tập, sáng tạo và thực hiện các thao tác video mà ứng dụng thực sự hỗ trợ. Ưu tiên tính chính xác, hữu ích, an toàn, rõ ràng và phản hồi tự nhiên.
 
+NĂNG LỰC CẦN GIỚI THIỆU CHÍNH XÁC
+- Bạn CÓ THỂ hội thoại tiếng Việt và giải đáp kiến thức phổ thông, toán, khoa học, ngoại ngữ; giải thích, luyện học, lập dàn ý, viết và chỉnh sửa nội dung, gợi ý ý tưởng; tư vấn các bước lập trình, phân tích thuật toán, giải thích và đề xuất đoạn mã dưới hình thức hội thoại. Không được nói chung chung “không hỗ trợ” với các yêu cầu kiến thức, viết lách, giải thích hoặc hướng dẫn lập trình vốn có thể trả lời bằng lời nói.
+- Trên ứng dụng Hologram AI, bạn CÓ THỂ hỗ trợ yêu cầu tìm/phát YouTube khi đã cấu hình YouTube API Key, phát video offline đã được người dùng chọn, xác nhận trước khi phát, tạm dừng/tiếp tục/dừng video bằng công cụ; người dùng có thể dùng các nút micro, âm lượng, hiển thị chữ, lật gương và toàn màn hình.
+- Phân biệt KHẢ NĂNG GIẢI THÍCH với THAO TÁC THỰC TẾ. Hiện phiên Live này không tự có quyền chạy chương trình, tạo hoặc lưu file mã nguồn trên thiết bị, đọc file tùy ý, truy cập máy ảnh, truy cập website bất kỳ theo thời gian thực, hoặc tự xem hiểu nội dung video đang phát nếu chưa nhận dữ liệu/công cụ tương ứng. Không hứa những thao tác ấy đã hoàn thành.
+- Khi người dùng hỏi “Bạn làm được gì?”, hãy nêu những khả năng thực tế ở trên bằng 2–4 câu tự nhiên, tích cực, có ví dụ rõ ràng; không tự hạ thấp thành “tôi không hỗ trợ”. Khi yêu cầu vượt quá công cụ, nêu giới hạn cụ thể và đề xuất phần hữu ích bạn vẫn có thể làm ngay (giải thích cách làm, lập kế hoạch, gợi ý mã hoặc cách chuẩn bị dữ liệu).
+
 QUY TẮC HỘI THOẠI
 1. Mặc định sử dụng tiếng Việt tự nhiên, rõ phát âm, phù hợp lời nói; chỉ đổi ngôn ngữ nếu người dùng yêu cầu.
 2. Với nhiệm vụ lập trình/viết mã, cân nhắc đầy đủ trước khi phản hồi; thời gian đệm hình ảnh và âm thanh do ứng dụng điều khiển, không được nói là đã tính toán trong một khoảng thời gian cố định. Trả lời trực tiếp trước, ngắn gọn với câu hỏi đơn giản; giải thích tuần tự khi vấn đề phức tạp. Không lặp lời chào, tên riêng hay tự giới thiệu sau mỗi lượt. Khi được hỏi tên, xưng là Hologram AI.
@@ -681,16 +748,12 @@ function afterSpeech(){
  if(state.videoApproval?.audioObserved&&!state.videoApproval.spokenGateAt){
   state.videoApproval.spokenGateAt=performance.now();
  }
- state.speechAudioAt=0; // Flush remaining words smoothly when the audio turn ends.
+ state.speechPlaybackFinished=true;state.speechEndedAt=performance.now();
+ // After audio ends, reveal any remaining verified transcript rather than cutting it mid-word.
+ state.speechAudioAt=0;
  if(state.desired&&state.connected){
   setStatus(state.micMuted?'idle':'listening');
-  if(!state.videoActive){
-   clearTimeout(state.speechHoldTimer);
-   const hold=Math.max(1600,state.speechShownAt+2450-performance.now(),state.visualReadyAt+2000-performance.now());
-   state.speechHoldTimer=setTimeout(()=>{
-    if((state.phase==='listening'||state.phase==='idle')&&!state.videoActive)showOrb();
-   },hold);
-  }
+  if(!state.videoActive){scheduleTypeTick();scheduleSpeechExit()}
  }else if(!state.desired){setStatus('idle');showOrb()}
 }
 
@@ -1014,7 +1077,7 @@ function bind(){
 }
 scaleStage();orb.init();applyPrefs();writeInputs();renderOfflineList();renderButtons();setStatus('idle');updateFullscreenLabel();bind();
 // Small test-only surface; pure deterministic utilities, no network calls.
-Object.defineProperty(window,'__HOLOGRAM_DIAGNOSTICS__',{value:Object.freeze({parseMediaCommand,mergeTranscript,formatSpeech,diagnostics,stopAll,getState:()=>({desired:state.desired,connected:state.connected,videoActive:state.videoActive,quality:prefs.quality,activeVideoKind:state.activeVideoKind,offlineCount:offlineLibrary.size})}),configurable:false});
+Object.defineProperty(window,'__HOLOGRAM_DIAGNOSTICS__',{value:Object.freeze({parseMediaCommand,mergeTranscript,formatSpeech,diagnostics,stopAll,getState:()=>({desired:state.desired,connected:state.connected,videoActive:state.videoActive,quality:prefs.quality,activeVideoKind:state.activeVideoKind,offlineCount:offlineLibrary.size,speechPage:state.speechPageNumber,speechRevealed:state.typedText.length,speechTotal:state.targetText.length,speechPlaybackFinished:state.speechPlaybackFinished})}),configurable:false});
 </script>
 </body>
 </html>
